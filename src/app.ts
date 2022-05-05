@@ -1,13 +1,17 @@
 import config from "./config";
-import express, { Request, Response, Application } from "express";
+import initLoaders from "./loaders";
+import express from "express";
 
-const app: Application = express();
 const PORT = config.port || 8000;
 
-app.get("/", (req: Request, res: Response): void => {
-  res.send("Hello World!");
-});
+const startServer = async () => {
+  const app = express();
 
-app.listen(PORT, (): void => {
-  console.log(`Server running here: https://localhost:${PORT}`);
-});
+  await initLoaders(app);
+
+  app.listen(PORT, () => {
+    console.log(`Server is running here: http://localhost:${PORT}`);
+  });
+};
+
+startServer();
