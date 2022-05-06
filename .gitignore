@@ -1,6 +1,7 @@
 node_modules/
 .vscode/
 dist/
+logs/
 
 .env
 .env.production
