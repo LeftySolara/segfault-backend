@@ -1,8 +1,8 @@
 import express, { Application } from "express";
-import routes from "../api/routes";
+import api from "../api";
 
 export default async ({ app }: { app: Application }) => {
-  app.use("/users", routes.users);
+  app.use("/users", api.users);
 
   return app;
 };
