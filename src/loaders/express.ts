@@ -1,9 +1,8 @@
-import express, { Request, Response, Application } from "express";
+import express, { Application } from "express";
+import routes from "../api/routes";
 
 export default async ({ app }: { app: Application }) => {
-  app.get("/", (req: Request, res: Response): void => {
-    res.send("Hello World!");
-  });
+  app.use("/users", routes.users);
 
   return app;
 };
