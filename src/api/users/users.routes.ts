@@ -67,4 +67,29 @@ const router: express.Router = express.Router();
  */
 router.get("/", controller.getUsers);
 
+/**
+ * @swagger
+ * /users/{id}:
+ *   get:
+ *     summary: Gets a user based on their id
+ *     tags: [Users]
+ *     parameters:
+ *       - in : path
+ *         name: id
+ *         description: id of the user
+ *         schema:
+ *           type: string
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: A user object
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/User"
+ *       400:
+ *         description: User cannot be found
+ */
+router.get("/:id", controller.getUserById);
+
 export default router;
