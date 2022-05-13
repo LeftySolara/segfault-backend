@@ -55,7 +55,7 @@ const updateUser = (req: Request, res: Response, next: Function) => {
  * Create a new user account
  */
 const createUser = (req: Request, res: Response, next: Function) => {
-  return res.status(200).json({ message: "Creating user..." });
+  return res.status(201).json({ message: "Creating user..." });
 };
 
 /**

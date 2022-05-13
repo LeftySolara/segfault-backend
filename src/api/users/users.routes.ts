@@ -1,5 +1,5 @@
 import express from "express";
-import controller from "./usersController";
+import controller from "./users.controller";
 
 /**
  * @swagger

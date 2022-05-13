@@ -1,17 +1,10 @@
-import config from "./config";
-import initLoaders from "./loaders";
 import express from "express";
+import initLoaders from "./loaders";
 
-const PORT = config.port || 8000;
+const app = express();
 
-const startServer = async () => {
-  const app = express();
-
+(async () => {
   await initLoaders(app);
+})();
 
-  app.listen(PORT, () => {
-    console.log(`Server is running here: http://localhost:${PORT}`);
-  });
-};
-
-startServer();
+export default app;
