@@ -12,6 +12,7 @@ export default async ({ app }: { app: Application }) => {
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(config.swagger));
 
   app.use("/users", api.users);
+  app.use("/boardCategories", api.boardCategories);
 
   return app;
 };
