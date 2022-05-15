@@ -6,8 +6,8 @@ import { Application } from "express";
 export default async (expressApp: Application) => {
   loggerService.info("Starting application...");
 
-  await mongooseLoader();
-  loggerService.info("MongoDB initialized.");
   await expressLoader({ app: expressApp });
   loggerService.info("Express initialized.");
+  await mongooseLoader();
+  loggerService.info("MongoDB initialized.");
 };
