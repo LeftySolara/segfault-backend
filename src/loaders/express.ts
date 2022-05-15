@@ -15,6 +15,7 @@ export default async ({ app }: { app: Application }) => {
   app.use("/boardCategories", api.boardCategories);
   app.use("/boards", api.boards);
   app.use("/threads", api.threads);
+  app.use("/posts", api.posts);
 
   return app;
 };
