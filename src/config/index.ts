@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import swaggerSpecs from "./swagger";
 
 interface config {
   port: string | undefined;
@@ -9,6 +10,7 @@ interface config {
     secret: string | undefined;
     key: string | undefined;
   };
+  swagger: object;
 }
 
 /* Load environment variables. If we're not in a production environment, then
@@ -29,6 +31,7 @@ const config: config = {
     secret: process.env.JWT_SECRET,
     key: process.env.JWT_KEY,
   },
+  swagger: swaggerSpecs,
 };
 
 export default config;
