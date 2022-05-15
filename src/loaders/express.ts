@@ -13,6 +13,7 @@ export default async ({ app }: { app: Application }) => {
 
   app.use("/users", api.users);
   app.use("/boardCategories", api.boardCategories);
+  app.use("/boards", api.boards);
 
   return app;
 };
