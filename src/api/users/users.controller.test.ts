@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import testHelpers from "../../utils/testHelpers";
 import controller from "./users.controller";
 
 describe("The users controller", () => {
@@ -18,6 +19,8 @@ describe("The users controller", () => {
   });
 
   const usersArray = expect.arrayContaining([userObject]);
+
+  testHelpers.controllerTestInit();
 
   describe("getUsers", () => {
     it("should return 200 and an array of user objects", () => {

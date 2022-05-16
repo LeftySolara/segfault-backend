@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import testHelpers from "../../utils/testHelpers";
 import controller from "./threads.controller";
 
 describe("The threads controller", () => {
@@ -7,6 +8,8 @@ describe("The threads controller", () => {
     json: jest.fn(),
     status: jest.fn().mockReturnThis(),
   } as unknown;
+
+  testHelpers.controllerTestInit();
 
   describe("getThreads", () => {
     it("should return 200 and a confirmation message", () => {

@@ -1,10 +1,13 @@
 import request from "supertest";
+import testHelpers from "../../utils/testHelpers";
 import app from "../../app";
 
 describe("Test the routes at /threads", () => {
   const responseMessage = expect.objectContaining({
     message: expect.any(String),
   });
+
+  testHelpers.routeTestInit(app);
 
   describe("the endpoint /threads", () => {
     it("should respond to GET requests by returning 200 and a confirmation message", async () => {
