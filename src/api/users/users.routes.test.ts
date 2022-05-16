@@ -1,4 +1,5 @@
 import request from "supertest";
+import testHelpers from "../../utils/testHelpers";
 import app from "../../app";
 
 describe("Test the routes at /users", () => {
@@ -14,6 +15,8 @@ describe("Test the routes at /users", () => {
     threads: expect.any(Array),
     joinDate: expect.any(String),
   });
+
+  testHelpers.routeTestInit(app);
   [
     describe("the endpoint /users", () => {
       const usersArray = expect.arrayContaining([userObject]);

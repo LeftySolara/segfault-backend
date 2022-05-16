@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import testHelpers from "../../utils/testHelpers";
 import controller from "./boards.controller";
 
 describe("The boards controller", () => {
@@ -7,6 +8,8 @@ describe("The boards controller", () => {
     json: jest.fn(),
     status: jest.fn().mockReturnThis(),
   } as unknown;
+
+  testHelpers.controllerTestInit();
 
   describe("getBoards", () => {
     it("should return 200 and a confirmation message", () => {
