@@ -9,5 +9,4 @@ export default async (expressApp: Application) => {
   await expressLoader({ app: expressApp });
   loggerService.info("Express initialized.");
   await mongooseLoader();
-  loggerService.info("MongoDB initialized.");
 };
