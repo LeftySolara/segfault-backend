@@ -3,6 +3,7 @@ import boardCategoriesRoutes from "./boardCategories/boardCategories.routes";
 import boardsRoutes from "./boards/boards.routes";
 import threadsRoutes from "./threads/threads.routes";
 import postsRoutes from "./posts/posts.routes";
+import healthCheckRoutes from "./healthCheck/healthCheck.routes";
 
 export default {
   users: usersRoutes,
@@ -10,4 +11,5 @@ export default {
   boards: boardsRoutes,
   threads: threadsRoutes,
   posts: postsRoutes,
+  healthCheck: healthCheckRoutes,
 };
