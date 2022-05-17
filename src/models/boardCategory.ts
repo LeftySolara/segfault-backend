@@ -1,9 +1,15 @@
-import mongoose from "mongoose";
+import { Schema, Types, model } from "mongoose";
 
-const boardCategorySchema: mongoose.Schema = new mongoose.Schema({
+interface IBoardCategory {
+  topic: string;
+  boards: Types.ObjectId[];
+  sortOrder: number;
+}
+
+const boardCategorySchema: Schema = new Schema<IBoardCategory>({
   topic: { type: String, required: true },
-  boards: [{ type: mongoose.Types.ObjectId, required: true, ref: "Board" }],
+  boards: [{ type: Schema.Types.ObjectId, required: true, ref: "Board" }],
   sortOrder: { type: Number, required: true, min: 0 },
 });
 
-export default mongoose.model("BoardCategory", boardCategorySchema);
+export default model<IBoardCategory>("BoardCategory", boardCategorySchema);
