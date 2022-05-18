@@ -1,11 +1,23 @@
-import mongoose from "mongoose";
+import { Schema, Types, model } from "mongoose";
 
-const boardSchema: mongoose.Schema = new mongoose.Schema({
+interface Category {
+  categoryId: Types.ObjectId;
+  topic: string;
+}
+
+interface IBoard {
+  topic: string;
+  description: string;
+  category: Category;
+  threads: Types.ObjectId[];
+}
+
+const boardSchema: Schema = new Schema<IBoard>({
   topic: { type: String, required: true },
   description: { type: String, required: true },
   category: {
     categoryId: {
-      type: mongoose.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       required: true,
       ref: "BoardCategory",
     },
@@ -13,11 +25,11 @@ const boardSchema: mongoose.Schema = new mongoose.Schema({
   },
   threads: [
     {
-      type: mongoose.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       required: true,
       ref: "Thread",
     },
   ],
 });
 
-export default mongoose.model("Board", boardSchema);
+export default model<IBoard>("Board", boardSchema);
