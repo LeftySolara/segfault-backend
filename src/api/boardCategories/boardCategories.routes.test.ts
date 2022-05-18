@@ -30,8 +30,26 @@ describe("Test the routes at /boardCategories", () => {
         expect(response.body).toEqual(responseMessage);
       });
 
+      it("should respond by returning 422 and an error message when the category already exists", async () => {
+        const payload = { topic: "Test Category", sortOrder: 0 };
+        const response: request.Response = await request(app)
+          .post("/boardCategories")
+          .send(payload);
+        expect(response.statusCode).toBe(422);
+        expect(response.body).toEqual(responseMessage);
+      });
+
       it("should respond by returning 422 and an error message when inputs are invalid", async () => {
         const payload = { topic: "Test Category", sortOrder: "A string" };
+        const response: request.Response = await request(app)
+          .post("/boardCategories")
+          .send(payload);
+        expect(response.statusCode).toBe(422);
+        expect(response.body).toEqual(responseMessage);
+      });
+
+      it("should respond by returning 422 and an error message when inputs are empty", async () => {
+        const payload = {};
         const response: request.Response = await request(app)
           .post("/boardCategories")
           .send(payload);

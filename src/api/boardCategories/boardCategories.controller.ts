@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import validateRequestInputs from "../../utils/inputValidator";
 import loggerService from "../../services/logger";
+import HttpError from "../../utils/httpError";
 import BoardCategoryService from "../../services/boardCategory";
 
 /**
@@ -45,8 +46,10 @@ const createCategory = async (req: Request, res: Response, next: Function) => {
 
   try {
     await BoardCategoryService.create(topic, sortOrder);
-  } catch (err) {
-    return next(err);
+  } catch (err: unknown) {
+    if (err instanceof HttpError) {
+      return res.status(err.code).json({ message: err.message });
+    }
   }
 
   loggerService.info(`Created new board category ${topic}.`);
