@@ -8,9 +8,7 @@ interface Category {
 interface IBoard {
   topic: string;
   description: string;
-  category: {
-    [key: string]: Category;
-  };
+  category: Category;
   threads: Types.ObjectId[];
 }
 
