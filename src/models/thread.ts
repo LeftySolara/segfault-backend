@@ -1,19 +1,39 @@
-import mongoose from "mongoose";
+import { Schema, Types, model } from "mongoose";
 
-const threadSchema: mongoose.Schema = new mongoose.Schema({
+interface Author {
+  authorId: Types.ObjectId;
+  username: string;
+  email: string;
+}
+
+interface Board {
+  boardId: Types.ObjectId;
+  topic: string;
+}
+
+interface IThread {
+  author: Author;
+  board: Board;
+  topic: string;
+  dateCreated: Date;
+  posts: Types.ObjectId[];
+  lastPost: Types.ObjectId;
+}
+
+const threadSchema: Schema = new Schema<IThread>({
   author: {
-    authorId: { type: mongoose.Types.ObjectId, required: true, ref: "User" },
+    authorId: { type: Schema.Types.ObjectId, required: true, ref: "User" },
     username: { type: String, required: true },
     email: { type: String, required: true },
   },
   board: {
-    boardId: { type: mongoose.Types.ObjectId, required: true },
+    boardId: { type: Schema.Types.ObjectId, required: true },
     topic: { type: String, required: true },
   },
   topic: { type: String, required: true },
   dateCreated: { type: Date, required: true, immutable: true },
-  posts: [{ type: mongoose.Types.ObjectId, required: true, ref: "Post" }],
-  lastPost: { type: mongoose.Types.ObjectId, required: true, ref: "Post" },
+  posts: [{ type: Schema.Types.ObjectId, required: true, ref: "Post" }],
+  lastPost: { type: Schema.Types.ObjectId, required: true, ref: "Post" },
 });
 
-export default mongoose.model("Thread", threadSchema);
+export default model<IThread>("Thread", threadSchema);
