@@ -1,17 +1,35 @@
-import mongoose from "mongoose";
+import { Schema, Types, model } from "mongoose";
 
-const postSchema: mongoose.Schema = new mongoose.Schema({
+interface Author {
+  authorId: Types.ObjectId;
+  username: string;
+  email: string;
+}
+
+interface Thread {
+  threadId: Types.ObjectId;
+  topic: string;
+}
+
+interface IPost {
+  author: Author;
+  thread: Thread;
+  dateCreated: Date;
+  content: string;
+}
+
+const postSchema: Schema = new Schema<IPost>({
   author: {
-    authorId: { type: mongoose.Types.ObjectId, required: true },
+    authorId: { type: Schema.Types.ObjectId, required: true },
     username: { type: String, required: true },
     email: { type: String, required: true },
   },
   thread: {
-    threadId: { type: mongoose.Types.ObjectId, required: true },
+    threadId: { type: Schema.Types.ObjectId, required: true },
     topic: { type: String, required: true },
   },
   dateCreated: { type: Date, required: true, immutable: true },
   content: { type: String, required: true },
 });
 
-module.exports = mongoose.model("Post", postSchema);
+module.exports = model<IPost>("Post", postSchema);
