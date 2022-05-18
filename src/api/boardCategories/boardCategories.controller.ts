@@ -1,4 +1,7 @@
 import { Request, Response } from "express";
+import validateRequestInputs from "../../utils/inputValidator";
+import loggerService from "../../services/logger";
+import BoardCategoryService from "../../services/boardCategory";
 
 /**
  * Fetch all board categories
@@ -32,8 +35,22 @@ const updateCategory = (req: Request, res: Response, next: Function) => {
  *
  * @returns Status code 201 and a confirmation message
  */
-const createCategory = (req: Request, res: Response, next: Function) => {
-  return res.status(201).json({ message: "Creating board category..." });
+const createCategory = async (req: Request, res: Response, next: Function) => {
+  const validationError = validateRequestInputs(req);
+  if (validationError) {
+    return next(validationError);
+  }
+
+  const { topic, sortOrder } = req.body;
+
+  try {
+    await BoardCategoryService.create(topic, sortOrder);
+  } catch (err) {
+    return next(err);
+  }
+
+  loggerService.info(`Created new board category ${topic}.`);
+  return res.status(201).json({ message: `Created new category ${topic}.` });
 };
 
 const deleteCategory = (req: Request, res: Response, next: Function) => {
