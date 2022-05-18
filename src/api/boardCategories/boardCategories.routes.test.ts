@@ -10,20 +10,34 @@ describe("Test the routes at /boardCategories", () => {
   testHelpers.routeTestInit(app);
 
   describe("the endpoint /boardCategories", () => {
-    it("should respond to GET requests by returning 200 and a confirmation message", async () => {
-      const response: request.Response = await request(app).get(
-        "/boardCategories",
-      );
-      expect(response.statusCode).toBe(200);
-      expect(response.body).toEqual(responseMessage);
+    describe("for GET requests", () => {
+      it("should respond by returning 200 and a confirmation message when successful", async () => {
+        const response: request.Response = await request(app).get(
+          "/boardCategories",
+        );
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toEqual(responseMessage);
+      });
     });
 
-    it("should respond to POST requests with 201 and a confirmation message", async () => {
-      const response: request.Response = await request(app).post(
-        "/boardCategories",
-      );
-      expect(response.statusCode).toBe(201);
-      expect(response.body).toEqual(responseMessage);
+    describe("for POST requests", () => {
+      it("should respond by returning 201 and a confirmation message when successful", async () => {
+        const payload = { topic: "Test Category", sortOrder: 0 };
+        const response: request.Response = await request(app)
+          .post("/boardCategories")
+          .send(payload);
+        expect(response.statusCode).toBe(201);
+        expect(response.body).toEqual(responseMessage);
+      });
+
+      it("should respond by returning 422 and an error message when inputs are invalid", async () => {
+        const payload = { topic: "Test Category", sortOrder: "A string" };
+        const response: request.Response = await request(app)
+          .post("/boardCategories")
+          .send(payload);
+        expect(response.statusCode).toBe(422);
+        expect(response.body).toEqual(responseMessage);
+      });
     });
   });
 
