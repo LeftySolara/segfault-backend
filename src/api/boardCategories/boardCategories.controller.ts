@@ -33,7 +33,7 @@ const updateCategory = (req: Request, res: Response, next: Function) => {
 /**
  * Create a new board category
  *
- * @returns Status code 201 and a confirmation message
+ * @returns On success, returns status code 201 and a confirmation message
  */
 const createCategory = async (req: Request, res: Response, next: Function) => {
   const validationError = validateRequestInputs(req);

@@ -1,4 +1,5 @@
 import express from "express";
+import { check } from "express-validator";
 import controller from "./boardCategories.controller";
 
 /**
@@ -37,10 +38,14 @@ import controller from "./boardCategories.controller";
  *             type: object
  *             required:
  *               - topic
+ *               - sortOrder
  *             properties:
  *               topic:
  *                 type: string
  *                 description: The name of the category
+ *               sortOrder:
+ *                 type: number
+ *                 description: The order in which to sort the category
  * tags:
  *   name: BoardCategories
  *   description: Operations on board categories
@@ -86,7 +91,12 @@ router.get("/", controller.getCategories);
  *                   type: string
  *                   example: Board category created successfully
  */
-router.post("/", controller.createCategory);
+router.post(
+  "/",
+  [check("topic").not().isEmpty()],
+  [check("sortOrder").isNumeric()],
+  controller.createCategory,
+);
 
 /**
  * @swagger
