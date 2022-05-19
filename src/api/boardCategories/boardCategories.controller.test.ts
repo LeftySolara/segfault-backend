@@ -63,14 +63,14 @@ describe("The boardCategories controller", () => {
   // });
 
   describe("getCategoryById", () => {
-    it("should return 200 and a confirmation message", () => {
-      controller.getCategoryById(
-        {} as Request,
+    it("should return 404 and an error message when unsuccessful", async () => {
+      await controller.getCategoryById(
+        { params: { id: "123" } } as unknown as Request,
         mockResponse as Response,
         jest.fn(),
       );
       const mRes = mockResponse as Response;
-      expect(mRes.status).toBeCalledWith(200);
+      expect(mRes.status).toBeCalledWith(404);
       expect(mRes.json).toBeCalledWith({ message: expect.any(String) });
     });
   });

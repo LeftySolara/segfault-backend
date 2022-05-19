@@ -128,7 +128,7 @@ router.post(
  *           application/json:
  *             schema:
  *               $ref: "#/components/schemas/BoardCategory"
- *       400:
+ *       404:
  *         description: Board category connot be found
  */
 router.get("/:id", controller.getCategoryById);

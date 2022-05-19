@@ -2,6 +2,25 @@ import HttpError from "../utils/httpError";
 import BoardCategoryModel from "../models/boardCategory";
 
 /**
+ * Fetch a board category by its ID
+ *
+ * @param id The ID of the category
+ *
+ * @returns An object containing the category information
+ */
+const getById = async (id: string) => {
+  let boardCategory;
+
+  try {
+    boardCategory = await BoardCategoryModel.findById(id);
+  } catch (err) {
+    throw new HttpError(`Could not find category with id ${id}.`, 404);
+  }
+
+  return boardCategory?.toObject({ getters: true });
+};
+
+/**
  * Add a new board category to the database
  *
  * @param topic The name of the category
@@ -33,5 +52,6 @@ const create = async (topic: string, sortOrder: number) => {
 };
 
 export default {
+  getById,
   create,
 };

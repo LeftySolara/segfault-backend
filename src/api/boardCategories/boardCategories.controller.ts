@@ -3,7 +3,7 @@ import validateRequestInputs from "../../utils/inputValidator";
 import loggerService from "../../services/logger";
 import HttpError from "../../utils/httpError";
 import BoardCategoryService from "../../services/boardCategory";
-import boardCategory from "../../models/boardCategory";
+import BoardCategoryModel from "../../models/boardCategory";
 
 /**
  * Fetch all board categories
@@ -13,30 +13,40 @@ import boardCategory from "../../models/boardCategory";
 const getCategories = async (req: Request, res: Response, next: Function) => {
   let boardCategories;
 
+  // TODO: move business logic to service layer
   try {
-    boardCategories = await boardCategory.find({});
+    boardCategories = await BoardCategoryModel.find({});
   } catch (err) {
     loggerService.error("Failed to fetch board categories");
     const error = new HttpError("Fetching board categories failed", 500);
     return next(error);
   }
 
-  return res
-    .status(200)
-    .json({
-      boardCategories: boardCategories.map((category) =>
-        category.toObject({ getters: true }),
-      ),
-    });
+  return res.status(200).json({
+    boardCategories: boardCategories.map((category) =>
+      category.toObject({ getters: true }),
+    ),
+  });
 };
 
 /**
  * Fetch a board category by its ID
  *
- * @returns Status code 200 and a confirmation message
+ * @returns On success, returns a boardCategory object. On failure, returns 404 and an error message.
  */
-const getCategoryById = (req: Request, res: Response, next: Function) => {
-  return res.status(200).json({ message: "Fetching board category..." });
+const getCategoryById = async (req: Request, res: Response, next: Function) => {
+  const { id } = req.params;
+  let boardCategory;
+
+  try {
+    boardCategory = await BoardCategoryService.getById(id);
+  } catch (err: unknown) {
+    if (err instanceof HttpError) {
+      return res.status(err.code).json({ message: err.message });
+    }
+  }
+
+  return res.status(200).json({ boardCategory });
 };
 
 /**

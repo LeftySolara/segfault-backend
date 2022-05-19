@@ -89,11 +89,11 @@ describe("Test the routes at /boardCategories", () => {
   });
 
   describe("the endpoint /boardCategories/{id}", () => {
-    it("should respond to GET requests by returning 200 and a confirmation message", async () => {
+    it("should respond to GET requests by returning 404 when unsuccessful", async () => {
       const response: request.Response = await request(app).get(
         "/boardCategories/123",
       );
-      expect(response.statusCode).toBe(200);
+      expect(response.statusCode).toBe(404);
       expect(response.body).toEqual(responseMessage);
     });
 
