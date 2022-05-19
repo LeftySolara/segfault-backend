@@ -2,6 +2,25 @@ import HttpError from "../utils/httpError";
 import BoardCategoryModel from "../models/boardCategory";
 
 /**
+ * Fetch all board categories
+ *
+ * @returns An array of boardCategory objects
+ */
+const getAll = async () => {
+  let boardCategories;
+
+  try {
+    boardCategories = await BoardCategoryModel.find({});
+  } catch (err) {
+    throw new HttpError("Fetching board categories failed", 500);
+  }
+
+  return boardCategories.map((category) =>
+    category.toObject({ getters: true }),
+  );
+};
+
+/**
  * Fetch a board category by its ID
  *
  * @param id The ID of the category
@@ -82,6 +101,7 @@ const create = async (topic: string, sortOrder: number) => {
 };
 
 export default {
+  getAll,
   getById,
   update,
   create,
