@@ -76,14 +76,17 @@ describe("The boardCategories controller", () => {
   });
 
   describe("updateCategory", () => {
-    it("should return 200 and a confirmation message", () => {
-      controller.updateCategory(
-        {} as Request,
+    it("should return 404 and an error message if the category does not exist", async () => {
+      await controller.updateCategory(
+        {
+          params: { id: "123" },
+          body: { topic: "Hello world", sortOrder: 4 },
+        } as unknown as Request,
         mockResponse as Response,
         jest.fn(),
       );
       const mRes = mockResponse as Response;
-      expect(mRes.status).toBeCalledWith(200);
+      expect(mRes.status).toBeCalledWith(404);
       expect(mRes.json).toBeCalledWith({ message: expect.any(String) });
     });
   });

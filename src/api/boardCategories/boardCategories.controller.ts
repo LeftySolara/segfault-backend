@@ -50,12 +50,29 @@ const getCategoryById = async (req: Request, res: Response, next: Function) => {
 };
 
 /**
- * Update a board category's info
+ * Update a board category's information
  *
- * @returns Status code 200 and a confirmation message
+ * @returns On success, returns status code 200 and an object containing the new category information
  */
-const updateCategory = (req: Request, res: Response, next: Function) => {
-  return res.status(200).json({ message: "Updating category..." });
+const updateCategory = async (req: Request, res: Response, next: Function) => {
+  const validationError = validateRequestInputs(req);
+  if (validationError) {
+    return next(validationError);
+  }
+
+  const { topic, sortOrder } = req.body;
+  const { id } = req.params;
+  let boardCategory;
+
+  try {
+    boardCategory = await BoardCategoryService.update(id, topic, sortOrder);
+  } catch (err) {
+    if (err instanceof HttpError) {
+      return res.status(err.code).json({ message: err.message });
+    }
+  }
+
+  return res.status(200).json({ category: boardCategory });
 };
 
 /**

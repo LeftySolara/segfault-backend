@@ -21,6 +21,36 @@ const getById = async (id: string) => {
 };
 
 /**
+ * Update a board category's information
+ *
+ * @param id The id of the board to update
+ * @param topic The new category topic
+ * @param sortOrder The new category sort order
+ *
+ * @returns An object containing the new category information
+ */
+const update = async (id: string, topic: string, sortOrder: number) => {
+  let boardCategory;
+
+  try {
+    boardCategory = await BoardCategoryModel.findById(id);
+  } catch (err) {
+    throw new HttpError("Board category not found", 404);
+  }
+
+  boardCategory!.topic = topic;
+  boardCategory!.sortOrder = sortOrder;
+
+  try {
+    await boardCategory?.save();
+  } catch (err) {
+    throw new HttpError("Could not update category", 500);
+  }
+
+  return boardCategory?.toObject({ getters: true });
+};
+
+/**
  * Add a new board category to the database
  *
  * @param topic The name of the category
@@ -53,5 +83,6 @@ const create = async (topic: string, sortOrder: number) => {
 
 export default {
   getById,
+  update,
   create,
 };

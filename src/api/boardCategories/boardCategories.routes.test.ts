@@ -97,11 +97,19 @@ describe("Test the routes at /boardCategories", () => {
       expect(response.body).toEqual(responseMessage);
     });
 
-    it("should respond to PATCH requests by returning 200 and a confirmation message", async () => {
-      const response: request.Response = await request(app).patch(
-        "/boardCategories/123",
-      );
-      expect(response.statusCode).toBe(200);
+    it("should respond to PATCH requests by returning 404 if the category does not exist", async () => {
+      const response: request.Response = await request(app)
+        .patch("/boardCategories/123")
+        .send({ topic: "Hello", sortOrder: 5 });
+      expect(response.statusCode).toBe(404);
+      expect(response.body).toEqual(responseMessage);
+    });
+
+    it("should respond to PATCH requests by returning 422 if the request body is malformed", async () => {
+      const response: request.Response = await request(app)
+        .patch("/boardCategories/123")
+        .send({ topic: 123, sortOrder: "A string" });
+      expect(response.statusCode).toBe(422);
       expect(response.body).toEqual(responseMessage);
     });
 

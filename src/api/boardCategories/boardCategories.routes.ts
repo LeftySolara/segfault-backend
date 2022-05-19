@@ -139,6 +139,8 @@ router.get("/:id", controller.getCategoryById);
  *   patch:
  *     summary: Update a board category's information
  *     tags: [BoardCategories]
+ *     requestBody:
+ *       $ref: "#/components/requestBodies/CategoryBody"
  *     parameters:
  *       - in : path
  *         name: id
@@ -159,8 +161,12 @@ router.get("/:id", controller.getCategoryById);
  *                   type: string
  *                   example: Board category updated successfully
  */
-// TODO: document request body
-router.patch("/:id", controller.updateCategory);
+router.patch(
+  "/:id",
+  [check("topic").not().isEmpty()],
+  [check("sortOrder").isNumeric()],
+  controller.updateCategory,
+);
 
 /**
  * @swagger
