@@ -3,14 +3,31 @@ import validateRequestInputs from "../../utils/inputValidator";
 import loggerService from "../../services/logger";
 import HttpError from "../../utils/httpError";
 import BoardCategoryService from "../../services/boardCategory";
+import boardCategory from "../../models/boardCategory";
 
 /**
  * Fetch all board categories
  *
  * @returns Status code 200 and a confirmation message
  */
-const getCategories = (req: Request, res: Response, next: Function) => {
-  return res.status(200).json({ message: "Fetching board categories..." });
+const getCategories = async (req: Request, res: Response, next: Function) => {
+  let boardCategories;
+
+  try {
+    boardCategories = await boardCategory.find({});
+  } catch (err) {
+    loggerService.error("Failed to fetch board categories");
+    const error = new HttpError("Fetching board categories failed", 500);
+    return next(error);
+  }
+
+  return res
+    .status(200)
+    .json({
+      boardCategories: boardCategories.map((category) =>
+        category.toObject({ getters: true }),
+      ),
+    });
 };
 
 /**

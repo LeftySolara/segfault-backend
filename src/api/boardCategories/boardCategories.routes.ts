@@ -68,6 +68,16 @@ const router: express.Router = express.Router();
  *               type: array
  *               items:
  *                 $ref: "#/components/schemas/BoardCategory"
+ *       500:
+ *         description: Unable to fetch board categories
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Unable to fetch board categories
  */
 router.get("/", controller.getCategories);
 
