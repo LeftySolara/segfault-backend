@@ -74,6 +74,8 @@ const update = async (id: string, topic: string, sortOrder: number) => {
  *
  * @param topic The name of the category
  * @param sortOrder The order in which to sort among other categories
+ *
+ * @returns The new board category object
  */
 const create = async (topic: string, sortOrder: number) => {
   let existingBoardCategory;
@@ -98,6 +100,8 @@ const create = async (topic: string, sortOrder: number) => {
   } catch (err) {
     throw new HttpError("Failed to create category", 500);
   }
+
+  return newBoardCategory.toObject({ getters: true });
 };
 
 export default {

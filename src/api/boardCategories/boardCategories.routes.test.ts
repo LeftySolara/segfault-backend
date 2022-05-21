@@ -17,10 +17,10 @@ describe("Test the routes at /boardCategories", () => {
   const boardCategoryObject = expect.objectContaining({
     __v: expect.any(Number),
     _id: expect.any(String),
-    boards: boardsArray,
+    boards: expect.any(Array),
     id: expect.any(String),
     sortOrder: expect.any(Number),
-    topc: expect.any(String),
+    topic: expect.any(String),
   });
 
   const boardCategoryArray = expect.arrayContaining([boardCategoryObject]);
@@ -50,13 +50,13 @@ describe("Test the routes at /boardCategories", () => {
     // });
 
     describe("for POST requests", () => {
-      it("should respond by returning 201 and a confirmation message when successful", async () => {
+      it("should respond by returning 201 and a the new category object", async () => {
         const payload = { topic: "Test Category", sortOrder: 0 };
         const response: request.Response = await request(app)
           .post("/boardCategories")
           .send(payload);
         expect(response.statusCode).toBe(201);
-        expect(response.body).toEqual(responseMessage);
+        expect(response.body.category).toEqual(boardCategoryObject);
       });
 
       it("should respond by returning 422 and an error message when the category already exists", async () => {

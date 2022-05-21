@@ -95,11 +95,7 @@ router.get("/", controller.getCategories);
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Board category created successfully
+ *               $ref: "#/components/schemas/BoardCategory"
  */
 router.post(
   "/",

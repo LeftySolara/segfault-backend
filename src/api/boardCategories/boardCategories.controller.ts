@@ -81,17 +81,17 @@ const createCategory = async (req: Request, res: Response, next: Function) => {
   }
 
   const { topic, sortOrder } = req.body;
+  let category;
 
   try {
-    await BoardCategoryService.create(topic, sortOrder);
+    category = await BoardCategoryService.create(topic, sortOrder);
   } catch (err: unknown) {
     if (err instanceof HttpError) {
       return res.status(err.code).json({ message: err.message });
     }
   }
 
-  loggerService.info(`Created new board category ${topic}.`);
-  return res.status(201).json({ message: `Created new category ${topic}.` });
+  return res.status(201).json({ category });
 };
 
 const deleteCategory = (req: Request, res: Response, next: Function) => {
