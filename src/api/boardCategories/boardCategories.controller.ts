@@ -26,6 +26,8 @@ const getCategories = async (req: Request, res: Response, next: Function) => {
 /**
  * Fetch a board category by its ID
  *
+ * @param req.params.id The id of the category to fetch
+ *
  * @returns On success, returns a boardCategory object. On failure, returns 404 and an error message.
  */
 const getCategoryById = async (req: Request, res: Response, next: Function) => {
@@ -45,6 +47,10 @@ const getCategoryById = async (req: Request, res: Response, next: Function) => {
 
 /**
  * Update a board category's information
+ *
+ * @param req.params.id The id of the category to update
+ * @param req.body.topic The new name of the category
+ * @param req.body.sortOrder The new sort order for the category
  *
  * @returns On success, returns status code 200 and an object containing the new category information
  */
@@ -71,6 +77,9 @@ const updateCategory = async (req: Request, res: Response, next: Function) => {
 
 /**
  * Create a new board category
+ *
+ * @param req.body.topic The name of the new category
+ * @param req.body.sortOrder The sorting order for the new category
  *
  * @returns On success, returns status code 201 and a confirmation message
  */
