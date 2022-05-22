@@ -103,8 +103,26 @@ const createCategory = async (req: Request, res: Response, next: Function) => {
   return res.status(201).json({ category });
 };
 
-const deleteCategory = (req: Request, res: Response, next: Function) => {
-  return res.status(200).json({ message: "Deleting board category..." });
+/**
+ * Delete a board category
+ *
+ * @param req.params.id The id of the category to delete
+ *
+ * @returns On success, returns 200 and an object containing information about the deleted category
+ */
+const deleteCategory = async (req: Request, res: Response, next: Function) => {
+  const { id } = req.params;
+
+  let category;
+  try {
+    category = await BoardCategoryService.del(id);
+  } catch (err: unknown) {
+    if (err instanceof HttpError) {
+      return res.status(err.code).json({ message: err.message });
+    }
+  }
+
+  return res.status(200).json({ category });
 };
 
 export default {

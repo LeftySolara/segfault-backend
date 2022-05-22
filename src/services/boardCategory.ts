@@ -104,9 +104,41 @@ const create = async (topic: string, sortOrder: number) => {
   return newBoardCategory.toObject({ getters: true });
 };
 
+/**
+ * Delete a board category
+ *
+ * @param id The id of the board to delete
+ *
+ * @returns An object containing the category that was deleted
+ */
+const del = async (id: string) => {
+  let category;
+
+  try {
+    category = await BoardCategoryModel.findById(id);
+  } catch (err) {
+    throw new HttpError("Could not delete category", 500);
+  }
+
+  if (!category) {
+    throw new HttpError("Could not find a board category for this id", 404);
+  }
+
+  let categoryObj;
+  try {
+    categoryObj = category.toObject({ getters: true });
+    await BoardCategoryModel.findByIdAndDelete(id);
+  } catch (err) {
+    throw new HttpError("Unable to delete board category", 500);
+  }
+
+  return categoryObj;
+};
+
 export default {
   getAll,
   getById,
   update,
   create,
+  del,
 };
