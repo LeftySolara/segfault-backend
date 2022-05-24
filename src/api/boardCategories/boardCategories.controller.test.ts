@@ -3,7 +3,7 @@ import testHelpers from "../../utils/testHelpers";
 import controller from "./boardCategories.controller";
 
 describe("The boardCategories controller", () => {
-  const req = { body: { topic: "Test Category", sortOrder: 1 } };
+  const req = { body: { topic: "Controller Test Category", sortOrder: 1 } };
 
   const mockResponse = {
     json: jest.fn(),
@@ -109,6 +109,12 @@ describe("The boardCategories controller", () => {
         mockResponse as Response,
         jest.fn(),
       );
+
+      await controller.createCategory(
+        req as Request,
+        mockResponse as Response,
+        jest.fn(),
+      );
       const mRes = mockResponse as Response;
       expect(mRes.status).toBeCalledWith(422);
       expect(mRes.json).toBeCalledWith({ message: expect.any(String) });
@@ -116,14 +122,14 @@ describe("The boardCategories controller", () => {
   });
 
   describe("deleteCategory", () => {
-    it("should return 200 and a confirmation message", () => {
-      controller.deleteCategory(
-        {} as Request,
+    it("should return 404 and an error message if the category does not exist", async () => {
+      await controller.deleteCategory(
+        { params: { id: "123" } } as unknown as Request,
         mockResponse as Response,
         jest.fn(),
       );
       const mRes = mockResponse as Response;
-      expect(mRes.status).toBeCalledWith(200);
+      expect(mRes.status).toBeCalledWith(404);
       expect(mRes.json).toBeCalledWith({ message: expect.any(String) });
     });
   });

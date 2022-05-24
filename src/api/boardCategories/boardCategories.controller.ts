@@ -32,17 +32,17 @@ const getCategories = async (req: Request, res: Response, next: Function) => {
  */
 const getCategoryById = async (req: Request, res: Response, next: Function) => {
   const { id } = req.params;
-  let boardCategory;
+  let category;
 
   try {
-    boardCategory = await BoardCategoryService.getById(id);
+    category = await BoardCategoryService.getById(id);
   } catch (err: unknown) {
     if (err instanceof HttpError) {
       return res.status(err.code).json({ message: err.message });
     }
   }
 
-  return res.status(200).json({ boardCategory });
+  return res.status(200).json({ category });
 };
 
 /**

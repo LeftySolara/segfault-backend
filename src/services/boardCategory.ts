@@ -36,7 +36,11 @@ const getById = async (id: string) => {
     throw new HttpError(`Could not find category with id ${id}.`, 404);
   }
 
-  return boardCategory?.toObject({ getters: true });
+  if (!boardCategory) {
+    throw new HttpError(`Could not find category with id ${id}.`, 404);
+  }
+
+  return boardCategory.toObject({ getters: true });
 };
 
 /**
