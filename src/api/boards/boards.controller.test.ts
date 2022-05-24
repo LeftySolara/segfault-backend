@@ -9,14 +9,33 @@ describe("The boards controller", () => {
     status: jest.fn().mockReturnThis(),
   } as unknown;
 
+  const boardObject = expect.objectContaining({
+    __v: expect.any(Number),
+    _id: expect.any(String),
+    topic: expect.any(String),
+    description: expect.any(String),
+    threads: expect.any(Array),
+    category: expect.objectContaining({
+      id: expect.any(String),
+      topic: expect.any(String),
+    }),
+  });
+
   testHelpers.controllerTestInit();
 
   describe("getBoards", () => {
-    it("should return 200 and a confirmation message", () => {
-      controller.getBoards(req as Request, mockResponse as Response, jest.fn());
+    it("should return 200 and an array of board objects", async () => {
+      await controller.getBoards(
+        req as Request,
+        mockResponse as Response,
+        jest.fn(),
+      );
+
       const mRes = mockResponse as Response;
       expect(mRes.status).toBeCalledWith(200);
-      expect(mRes.json).toBeCalledWith({ message: expect.any(String) });
+      expect(mRes.json).toBeCalledWith({
+        boards: [],
+      });
     });
   });
 

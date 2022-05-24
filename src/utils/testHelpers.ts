@@ -28,6 +28,17 @@ const controllerTestInit = () => {
   });
 };
 
+const serviceTestInit = () => {
+  beforeAll(async () => {
+    await mongooseLoader();
+    await mongoose.connection.dropDatabase();
+  });
+
+  afterAll(async () => {
+    await mongoose.connection.close();
+  });
+};
+
 /**
  * Create a new board category and returns its database id
  *
@@ -40,4 +51,9 @@ const generateCategoryId = async (topic: string) => {
   return id;
 };
 
-export default { routeTestInit, controllerTestInit, generateCategoryId };
+export default {
+  routeTestInit,
+  controllerTestInit,
+  serviceTestInit,
+  generateCategoryId,
+};

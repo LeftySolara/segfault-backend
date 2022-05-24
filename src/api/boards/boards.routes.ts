@@ -84,9 +84,24 @@ const router: express.Router = express.Router();
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: "#/components/schemas/Board"
+ *               type: object
+ *               required:
+ *                 - boards
+ *               properties:
+ *                 boards:
+ *                   type: array
+ *                   items:
+ *                     $ref: "#/components/schemas/Board"
+ *       500:
+ *         description: Unable to fetch boards
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Unable to fetch boards
  */
 router.get("/", controller.getBoards);
 
