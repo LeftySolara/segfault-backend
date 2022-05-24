@@ -47,7 +47,7 @@ import controller from "./boardCategories.controller";
  *                 type: number
  *                 description: The order in which to sort the category
  * tags:
- *   name: BoardCategories
+ *   name: Board Categories
  *   description: Operations on board categories
  */
 
@@ -58,16 +58,21 @@ const router: express.Router = express.Router();
  * /boardCategories:
  *   get:
  *     summary: Get all board categories
- *     tags: [BoardCategories]
+ *     tags: [Board Categories]
  *     responses:
  *       200:
  *         description: The list of all board categories
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: "#/components/schemas/BoardCategory"
+ *               type: object
+ *               required:
+ *                 - categories
+ *               properties:
+ *                categories:
+ *                  type: array
+ *                  items:
+ *                    $ref: "#/components/schemas/BoardCategory"
  *       500:
  *         description: Unable to fetch board categories
  *         content:
@@ -86,7 +91,7 @@ router.get("/", controller.getCategories);
  * /boardCategories:
  *   post:
  *     summary: Create a new board category
- *     tags: [BoardCategories]
+ *     tags: [Board Categories]
  *     requestBody:
  *       $ref: "#/components/requestBodies/CategoryBody"
  *     responses:
@@ -96,6 +101,16 @@ router.get("/", controller.getCategories);
  *           application/json:
  *             schema:
  *               $ref: "#/components/schemas/BoardCategory"
+ *       422:
+ *         description: The category already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Category exists
  */
 router.post(
   "/",
@@ -109,7 +124,7 @@ router.post(
  * /boardCategories/{id}:
  *   get:
  *     summary: Get a board category by its id
- *     tags: [BoardCategories]
+ *     tags: [Board Categories]
  *     parameters:
  *       - in : path
  *         name: id
@@ -125,7 +140,16 @@ router.post(
  *             schema:
  *               $ref: "#/components/schemas/BoardCategory"
  *       404:
- *         description: Board category connot be found
+ *         description: Board category cannot be found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Could not find board category for this id
+ *
  */
 router.get("/:id", controller.getCategoryById);
 
@@ -134,7 +158,7 @@ router.get("/:id", controller.getCategoryById);
  * /boardCategories/{id}:
  *   patch:
  *     summary: Update a board category's information
- *     tags: [BoardCategories]
+ *     tags: [Board Categories]
  *     requestBody:
  *       $ref: "#/components/requestBodies/CategoryBody"
  *     parameters:
@@ -151,11 +175,17 @@ router.get("/:id", controller.getCategoryById);
  *         content:
  *           application/json:
  *             schema:
+ *               $ref: "#/components/schemas/BoardCategory"
+ *       404:
+ *         description: Board category cannot be found
+ *         content:
+ *           application/json:
+ *             schema:
  *               type: object
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Board category updated successfully
+ *                   example: Could not find board category for this id
  */
 router.patch(
   "/:id",
@@ -169,10 +199,24 @@ router.patch(
  * /boardCategories/{id}:
  *   delete:
  *     summary: Delete a board category
- *     tags: [BoardCategories]
+ *     tags: [Board Categories]
+ *     parameters:
+ *       - in : path
+ *         name: id
+ *         description: id of the board category
+ *         schema:
+ *           type: string
+ *           example: 12cew34d224r7d
+ *         required: true
  *     responses:
  *       200:
  *         description: The board category was deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/BoardCategory"
+ *       404:
+ *         description: Board category cannot be found
  *         content:
  *           application/json:
  *             schema:
@@ -180,7 +224,7 @@ router.patch(
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Board category deleted successfully
+ *                   example: Could not find board category for this id
  */
 router.delete("/:id", controller.deleteCategory);
 
