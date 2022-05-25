@@ -1,10 +1,10 @@
 import express from "express";
 import mongoose from "mongoose";
-import request from "supertest";
 import initLoaders from "../loaders";
 import mongooseLoader from "../loaders/mongoose";
 
 import BoardCategoryService from "../services/boardCategory";
+import BoardService from "../services/board";
 
 const routeTestInit = (app: express.Application) => {
   beforeAll(async () => {
@@ -51,9 +51,34 @@ const generateCategoryId = async (topic: string) => {
   return id;
 };
 
+/**
+ * Create a new board and return its id
+ *
+ * @param topic The name of the board
+ * @param description A brief description of the board
+ * @param categoryId The category the board belongs to
+ *
+ * @returns The id of the newly-created board
+ */
+const generateBoardId = async (
+  topic: string,
+  description: string,
+  categoryId: string,
+) => {
+  const boardObj: any = await BoardService.create(
+    topic,
+    description,
+    categoryId,
+  );
+  const id = boardObj.id;
+
+  return id;
+};
+
 export default {
   routeTestInit,
   controllerTestInit,
   serviceTestInit,
   generateCategoryId,
+  generateBoardId,
 };

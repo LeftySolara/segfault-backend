@@ -28,6 +28,16 @@ describe("The boards controller", () => {
     } as unknown;
 
     it("should return 200 and an array of board objects", async () => {
+      // Create a board to fetch
+      const categoryId = await testHelpers.generateCategoryId(
+        "getBoards Category",
+      );
+      const boardId = await testHelpers.generateBoardId(
+        "getBoards",
+        "A test run",
+        categoryId,
+      );
+
       await controller.getBoards(
         req as Request,
         mockResponse as Response,
@@ -37,7 +47,7 @@ describe("The boards controller", () => {
       const mRes = mockResponse as Response;
       expect(mRes.status).toBeCalledWith(200);
       expect(mRes.json).toBeCalledWith({
-        boards: [],
+        boards: expect.arrayContaining([boardObject]),
       });
     });
   });
