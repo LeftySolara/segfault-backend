@@ -30,10 +30,23 @@ describe("Test the routes at /boards", () => {
       });
     });
 
-    it("should respond to POST requests with 201 and a confirmation message", async () => {
-      const response: request.Response = await request(app).post("/boards");
-      expect(response.statusCode).toBe(201);
-      expect(response.body).toEqual(responseMessage);
+    describe("for POST requests", () => {
+      it("should return 201 and the newly-created board object", async () => {
+        const categoryId = await testHelpers.generateCategoryId(
+          "POST Requests Category",
+        );
+        const payload = {
+          topic: "POST Example Board",
+          description: "An example board for POST requests",
+          categoryId,
+        };
+
+        const response: request.Response = await request(app)
+          .post("/boards")
+          .send(payload);
+        expect(response.statusCode).toBe(201);
+        expect(response.body).toEqual({ board: boardObject });
+      });
     });
   });
 

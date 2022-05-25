@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import testHelpers from "../utils/testHelpers";
 import BoardService from "./board";
 
@@ -6,17 +7,18 @@ describe("The Board service", () => {
     message: expect.any(String),
   });
 
-  const boardObject = expect.objectContaining({
+  const boardObject = {
     __v: expect.any(Number),
-    _id: expect.any(String),
+    _id: expect.any(mongoose.Types.ObjectId),
     topic: expect.any(String),
     description: expect.any(String),
     threads: expect.any(Array),
-    category: expect.objectContaining({
-      id: expect.any(String),
+    category: {
+      id: expect.any(mongoose.Types.ObjectId),
       topic: expect.any(String),
-    }),
-  });
+    },
+    id: expect.any(String),
+  };
 
   testHelpers.serviceTestInit();
 
@@ -25,6 +27,21 @@ describe("The Board service", () => {
     it("should return an array of board objects", async () => {
       const boards = await BoardService.getAll();
       expect(boards).toEqual([]);
+    });
+  });
+
+  describe("create", () => {
+    it("should return an object containing board information", async () => {
+      const categoryId = await testHelpers.generateCategoryId(
+        "Service creation test",
+      );
+
+      const board = await BoardService.create(
+        "Example board",
+        "This is a creation example",
+        categoryId,
+      );
+      expect(board).toEqual(boardObject);
     });
   });
 });

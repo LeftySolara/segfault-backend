@@ -46,7 +46,7 @@ const serviceTestInit = () => {
  */
 const generateCategoryId = async (topic: string) => {
   const categoryObj: any = await BoardCategoryService.create(topic, 1);
-  const id = categoryObj._id;
+  const id = categoryObj.id;
 
   return id;
 };

@@ -1,4 +1,5 @@
 import express from "express";
+import { check } from "express-validator";
 import controller from "./boards.controller";
 
 /**
@@ -119,13 +120,15 @@ router.get("/", controller.getBoards);
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Board created successfully
+ *               $ref: "#/components/schemas/Board"
  */
-router.post("/", controller.createBoard);
+router.post(
+  "/",
+  [check("topic").notEmpty()],
+  [check("description").notEmpty()],
+  [check("categoryId").notEmpty()],
+  controller.createBoard,
+);
 
 /**
  * @swagger

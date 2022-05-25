@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import BoardService from "../../services/board";
 import HttpError from "../../utils/httpError";
+import validateRequestInputs from "../../utils/inputValidator";
 
 /**
  * Fetch all boards
@@ -42,10 +43,26 @@ const updateBoard = (req: Request, res: Response, next: Function) => {
 /**
  * Create a new board
  *
- * @returns Status code 201 and a confirmation message
+ * @returns Status code 201 and the new board object
  */
-const createBoard = (req: Request, res: Response, next: Function) => {
-  return res.status(201).json({ message: "Creating board..." });
+const createBoard = async (req: Request, res: Response, next: Function) => {
+  const validationError = validateRequestInputs(req);
+  if (validationError) {
+    return next(validationError);
+  }
+
+  const { topic, description, categoryId } = req.body;
+  let board;
+
+  try {
+    board = await BoardService.create(topic, description, categoryId);
+  } catch (err: unknown) {
+    if (err instanceof HttpError) {
+      return res.status(err.code).json({ message: err.message });
+    }
+  }
+
+  return res.status(201).json({ board });
 };
 
 /**

@@ -1,29 +1,32 @@
 import { Request, Response } from "express";
+import mongoose from "mongoose";
 import testHelpers from "../../utils/testHelpers";
 import controller from "./boards.controller";
 
 describe("The boards controller", () => {
   const req = {};
-  const mockResponse = {
-    json: jest.fn(),
-    status: jest.fn().mockReturnThis(),
-  } as unknown;
 
-  const boardObject = expect.objectContaining({
+  const boardObject = {
     __v: expect.any(Number),
-    _id: expect.any(String),
+    _id: expect.any(mongoose.Types.ObjectId),
     topic: expect.any(String),
     description: expect.any(String),
     threads: expect.any(Array),
-    category: expect.objectContaining({
-      id: expect.any(String),
+    category: {
+      id: expect.any(mongoose.Types.ObjectId),
       topic: expect.any(String),
-    }),
-  });
+    },
+    id: expect.any(String),
+  };
 
   testHelpers.controllerTestInit();
 
   describe("getBoards", () => {
+    const mockResponse = {
+      json: jest.fn(),
+      status: jest.fn().mockReturnThis(),
+    } as unknown;
+
     it("should return 200 and an array of board objects", async () => {
       await controller.getBoards(
         req as Request,
@@ -40,6 +43,11 @@ describe("The boards controller", () => {
   });
 
   describe("getBoardById", () => {
+    const mockResponse = {
+      json: jest.fn(),
+      status: jest.fn().mockReturnThis(),
+    } as unknown;
+
     it("should return 200 and a confirmation message", () => {
       controller.getBoardById(
         req as Request,
@@ -53,6 +61,11 @@ describe("The boards controller", () => {
   });
 
   describe("updateBoard", () => {
+    const mockResponse = {
+      json: jest.fn(),
+      status: jest.fn().mockReturnThis(),
+    } as unknown;
+
     it("should return 200 and a confirmation message", () => {
       controller.updateBoard(
         req as Request,
@@ -66,19 +79,42 @@ describe("The boards controller", () => {
   });
 
   describe("createBoard", () => {
-    it("should return 201 and a confirmation message", () => {
-      controller.createBoard(
+    const mockResponse = {
+      json: jest.fn(),
+      status: jest.fn().mockReturnThis(),
+    } as unknown;
+
+    it("should return 201 and the newly-created board object", async () => {
+      const categoryId = await testHelpers.generateCategoryId(
+        "Test Creation Category",
+      );
+      const req = {
+        body: {
+          topic: "createBoard Example",
+          description: "Testing board creation",
+          categoryId,
+        },
+      };
+
+      await controller.createBoard(
         req as Request,
         mockResponse as Response,
         jest.fn(),
       );
       const mRes = mockResponse as Response;
       expect(mRes.status).toBeCalledWith(201);
-      expect(mRes.json).toBeCalledWith({ message: expect.any(String) });
+      expect((mRes.json as any).mock.calls[0][0]).toMatchObject({
+        board: boardObject,
+      });
     });
   });
 
   describe("deleteBoard", () => {
+    const mockResponse = {
+      json: jest.fn(),
+      status: jest.fn().mockReturnThis(),
+    } as unknown;
+
     it("should return 200 and a confirmation message", () => {
       controller.deleteBoard(
         req as Request,
