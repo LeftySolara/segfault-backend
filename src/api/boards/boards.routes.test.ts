@@ -51,10 +51,30 @@ describe("Test the routes at /boards", () => {
   });
 
   describe("the endpoint /boards/{id}", () => {
-    it("should respond to GET requests by returning 200 and a confirmation message", async () => {
-      const response: request.Response = await request(app).get("/boards/123");
-      expect(response.statusCode).toBe(200);
-      expect(response.body).toEqual(responseMessage);
+    describe("for GET requests", () => {
+      it("should return 200 and a board object", async () => {
+        // Create a board to fetch
+        const categoryId = await testHelpers.generateCategoryId("GET board");
+        const boardId = await testHelpers.generateBoardId(
+          "GET /boards/{id}",
+          "Testing fetching board",
+          categoryId,
+        );
+
+        const response: request.Response = await request(app).get(
+          `/boards/${boardId}`,
+        );
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toEqual({ board: boardObject });
+      });
+
+      it("should respond with 404 if the board is not found", async () => {
+        const response: request.Response = await request(app).get(
+          "/boards/123456789012",
+        );
+        expect(response.statusCode).toBe(404);
+        expect(response.body).toEqual(responseMessage);
+      });
     });
 
     it("should respond to PATCH requests by returning 200 and a confirmation message", async () => {

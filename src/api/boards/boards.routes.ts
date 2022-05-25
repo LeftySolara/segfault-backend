@@ -149,9 +149,24 @@ router.post(
  *         content:
  *           application/json:
  *             schema:
- *               $ref: "#/components/schemas/Board"
- *       400:
+ *               type: object
+ *               required:
+ *                 - board
+ *               properties:
+ *                 board:
+ *                   $ref: "#/components/schemas/Board"
+ *       404:
  *         description: Board connot be found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - message
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Board not found
  */
 router.get("/:id", controller.getBoardById);
 

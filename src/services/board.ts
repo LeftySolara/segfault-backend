@@ -21,6 +21,30 @@ const getAll = async () => {
 };
 
 /**
+ * Get a board from the database by its id
+ *
+ * @param id The id of the board to fetch
+ *
+ * @returns An object containing board information
+ */
+const getById = async (id: string) => {
+  let board;
+
+  try {
+    board = await BoardModel.findById(id);
+  } catch (err) {
+    console.log(err);
+    throw new HttpError("Error searching for board", 500);
+  }
+
+  if (!board) {
+    throw new HttpError("Board not found", 404);
+  }
+
+  return board.toObject({ getters: true });
+};
+
+/**
  * Create a new board
  *
  * @param topic The name of the new board
@@ -87,5 +111,6 @@ const create = async (
 
 export default {
   getAll,
+  getById,
   create,
 };

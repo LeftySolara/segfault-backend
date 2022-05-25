@@ -25,10 +25,21 @@ const getBoards = async (req: Request, res: Response, next: Function) => {
 /**
  * Fetch a board by its ID
  *
- * @returns Status code 200 and a confirmation message
+ * @returns On success, returns 200 and the board object. On failure, returns 404 or 500 and an error message.
  */
-const getBoardById = (req: Request, res: Response, next: Function) => {
-  return res.status(200).json({ message: "Fetching board..." });
+const getBoardById = async (req: Request, res: Response, next: Function) => {
+  const { id } = req.params;
+
+  let board;
+  try {
+    board = await BoardService.getById(id);
+  } catch (err: unknown) {
+    if (err instanceof HttpError) {
+      return res.status(err.code).json({ message: err.message });
+    }
+  }
+
+  return res.status(200).json({ board });
 };
 
 /**
