@@ -45,6 +45,68 @@ const getById = async (id: string) => {
 };
 
 /**
+ * Update a board's information
+ *
+ * @param id The id of the board to update
+ * @param topic The new topic for the board
+ * @param description The new description for the board
+ * @param categoryId The id of the category to assign the board to
+ *
+ * @returns An object containing updated board information
+ */
+const update = async (
+  id: string,
+  topic: string,
+  description: string,
+  categoryId: string,
+) => {
+  let board;
+  try {
+    board = await BoardModel.findById(id);
+  } catch (err) {
+    throw new HttpError("Error fetching board", 500);
+  }
+
+  if (!board) {
+    throw new HttpError("Board not found", 404);
+  }
+
+  try {
+    board.topic = topic;
+    board.description = description;
+
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+
+    if (categoryId && categoryId !== board.category.id.toString()) {
+      // Remove from original category
+      const boardId = board.id;
+      const oldCategory = await BoardCategoryModel.findById(board.category.id);
+      const idx = oldCategory?.boards.findIndex(
+        (boardObj) => boardObj.id === boardId,
+      );
+
+      oldCategory?.boards.splice(idx!, 1);
+      await oldCategory?.save({ session: sess, validateModifiedOnly: true });
+
+      // Add to new category
+      const newCategory = await BoardCategoryModel.findById(categoryId);
+      newCategory?.boards.push(board._id);
+      await newCategory?.save({ session: sess, validateModifiedOnly: true });
+
+      board.category = { id: newCategory!._id, topic: newCategory!.topic };
+    }
+    await board.save({ session: sess, validateModifiedOnly: true });
+
+    await sess.commitTransaction();
+  } catch (err) {
+    throw new HttpError("Failed to update board.", 500);
+  }
+
+  return board.toObject({ getters: true });
+};
+
+/**
  * Create a new board
  *
  * @param topic The name of the new board
@@ -112,5 +174,6 @@ const create = async (
 export default {
   getAll,
   getById,
+  update,
   create,
 };

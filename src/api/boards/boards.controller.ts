@@ -45,10 +45,31 @@ const getBoardById = async (req: Request, res: Response, next: Function) => {
 /**
  * Update a board's info
  *
- * @returns Status code 200 and a confirmation message
+ * @param req.params.id The id of the board to update
+ * @param req.body.topic The new topic for the board
+ * @param req.body.description The new description for the board
+ * @param req.body.categoryId The id of the category to assign the board to
+ *
+ * @returns On success, returns 200 and an update board object. On error, returns 500 or 404 depending on the error.
  */
-const updateBoard = (req: Request, res: Response, next: Function) => {
-  return res.status(200).json({ message: "Updating board..." });
+const updateBoard = async (req: Request, res: Response, next: Function) => {
+  const validationError = validateRequestInputs(req);
+  if (validationError) {
+    return next(validationError);
+  }
+
+  const { topic, description, categoryId } = req.body;
+  const { id } = req.params;
+
+  let board;
+  try {
+    board = await BoardService.update(id, topic, description, categoryId);
+  } catch (err: unknown) {
+    if (err instanceof HttpError) {
+      return res.status(err.code).json({ message: err.message });
+    }
+  }
+  return res.status(200).json({ board });
 };
 
 /**

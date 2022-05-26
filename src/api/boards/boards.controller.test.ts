@@ -107,14 +107,76 @@ describe("The boards controller", () => {
       status: jest.fn().mockReturnThis(),
     } as unknown;
 
-    it("should return 200 and a confirmation message", () => {
-      controller.updateBoard(
+    it("should return 200 and an updated board object", async () => {
+      const categoryId = await testHelpers.generateCategoryId(
+        "Original Category",
+      );
+      const boardId = await testHelpers.generateBoardId(
+        "Original topic",
+        "Original description",
+        categoryId,
+      );
+
+      const topic = "New topic";
+      const description = "New description";
+
+      const req = {
+        params: {
+          id: boardId,
+        },
+        body: {
+          topic,
+          description,
+          categoryId,
+        },
+      } as unknown;
+
+      await controller.updateBoard(
         req as Request,
         mockResponse as Response,
         jest.fn(),
       );
+
       const mRes = mockResponse as Response;
+      const updatedBoard = {
+        board: {
+          __v: 0,
+          id: boardId,
+          _id: new mongoose.Types.ObjectId(boardId),
+          topic,
+          description,
+          threads: [],
+          category: {
+            id: new mongoose.Types.ObjectId(categoryId),
+            topic: "Original Category",
+          },
+        },
+      };
+
       expect(mRes.status).toBeCalledWith(200);
+      expect((mRes.json as any).mock.calls[0][0]).toMatchObject(updatedBoard);
+    });
+
+    it("should return 404 and an error message if the board is not found", async () => {
+      const req = {
+        params: {
+          id: "123456789012",
+        },
+        body: {
+          topic: "topic",
+          description: "description",
+          categoryId: "123",
+        },
+      } as unknown;
+
+      await controller.updateBoard(
+        req as Request,
+        mockResponse as Response,
+        jest.fn(),
+      );
+
+      const mRes = mockResponse as Response;
+      expect(mRes.status).toBeCalledWith(404);
       expect(mRes.json).toBeCalledWith({ message: expect.any(String) });
     });
   });

@@ -176,6 +176,8 @@ router.get("/:id", controller.getBoardById);
  *   patch:
  *     summary: Update a board's information
  *     tags: [Boards]
+ *     requestBody:
+ *       $ref: "#/components/requestBodies/BoardBody"
  *     parameters:
  *       - in : path
  *         name: id
@@ -190,14 +192,27 @@ router.get("/:id", controller.getBoardById);
  *         content:
  *           application/json:
  *             schema:
+ *               $ref: "#/components/schemas/Board"
+ *       404:
+ *         description: Board connot be found
+ *         content:
+ *           application/json:
+ *             schema:
  *               type: object
+ *               required:
+ *                 - message
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Board updated successfully
+ *                   example: Board not found
  */
-// TODO: document request body
-router.patch("/:id", controller.updateBoard);
+router.patch(
+  "/:id",
+  [check("topic").notEmpty()],
+  [check("description").notEmpty()],
+  [check("categoryId").notEmpty()],
+  controller.updateBoard,
+);
 
 /**
  * @swagger
