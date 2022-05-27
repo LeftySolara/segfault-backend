@@ -1,7 +1,7 @@
 import { Schema, Types, model } from "mongoose";
 
 interface Category {
-  categoryId: Types.ObjectId;
+  id: Types.ObjectId;
   topic: string;
 }
 
@@ -16,7 +16,7 @@ const boardSchema: Schema = new Schema<IBoard>({
   topic: { type: String, required: true },
   description: { type: String, required: true },
   category: {
-    categoryId: {
+    id: {
       type: Schema.Types.ObjectId,
       required: true,
       ref: "BoardCategory",

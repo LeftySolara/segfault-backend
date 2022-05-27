@@ -1,4 +1,5 @@
 import express from "express";
+import { check } from "express-validator";
 import controller from "./boards.controller";
 
 /**
@@ -84,9 +85,24 @@ const router: express.Router = express.Router();
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: "#/components/schemas/Board"
+ *               type: object
+ *               required:
+ *                 - boards
+ *               properties:
+ *                 boards:
+ *                   type: array
+ *                   items:
+ *                     $ref: "#/components/schemas/Board"
+ *       500:
+ *         description: Unable to fetch boards
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Unable to fetch boards
  */
 router.get("/", controller.getBoards);
 
@@ -104,13 +120,15 @@ router.get("/", controller.getBoards);
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Board created successfully
+ *               $ref: "#/components/schemas/Board"
  */
-router.post("/", controller.createBoard);
+router.post(
+  "/",
+  [check("topic").notEmpty()],
+  [check("description").notEmpty()],
+  [check("categoryId").notEmpty()],
+  controller.createBoard,
+);
 
 /**
  * @swagger
@@ -131,9 +149,24 @@ router.post("/", controller.createBoard);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: "#/components/schemas/Board"
- *       400:
+ *               type: object
+ *               required:
+ *                 - board
+ *               properties:
+ *                 board:
+ *                   $ref: "#/components/schemas/Board"
+ *       404:
  *         description: Board connot be found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - message
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Board not found
  */
 router.get("/:id", controller.getBoardById);
 
@@ -143,6 +176,8 @@ router.get("/:id", controller.getBoardById);
  *   patch:
  *     summary: Update a board's information
  *     tags: [Boards]
+ *     requestBody:
+ *       $ref: "#/components/requestBodies/BoardBody"
  *     parameters:
  *       - in : path
  *         name: id
@@ -157,14 +192,27 @@ router.get("/:id", controller.getBoardById);
  *         content:
  *           application/json:
  *             schema:
+ *               $ref: "#/components/schemas/Board"
+ *       404:
+ *         description: Board connot be found
+ *         content:
+ *           application/json:
+ *             schema:
  *               type: object
+ *               required:
+ *                 - message
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Board updated successfully
+ *                   example: Board not found
  */
-// TODO: document request body
-router.patch("/:id", controller.updateBoard);
+router.patch(
+  "/:id",
+  [check("topic").notEmpty()],
+  [check("description").notEmpty()],
+  [check("categoryId").notEmpty()],
+  controller.updateBoard,
+);
 
 /**
  * @swagger
@@ -172,17 +220,32 @@ router.patch("/:id", controller.updateBoard);
  *   delete:
  *     summary: Delete a board
  *     tags: [Boards]
+ *     parameters:
+ *       - in : path
+ *         name: id
+ *         description: id of the board
+ *         schema:
+ *           type: string
+ *           example: 12cew34d224r7d
  *     responses:
  *       200:
  *         description: The board was deleted
  *         content:
  *           application/json:
  *             schema:
+ *               $ref: "#/components/schemas/Board"
+ *       404:
+ *         description: The board was not found
+ *         content:
+ *           application/json:
+ *             schema:
  *               type: object
+ *               required:
+ *                 - message
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Board deleted successfully
+ *                   example: Board not found
  */
 router.delete("/:id", controller.deleteBoard);
 
