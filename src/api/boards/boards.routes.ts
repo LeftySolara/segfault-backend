@@ -220,17 +220,32 @@ router.patch(
  *   delete:
  *     summary: Delete a board
  *     tags: [Boards]
+ *     parameters:
+ *       - in : path
+ *         name: id
+ *         description: id of the board
+ *         schema:
+ *           type: string
+ *           example: 12cew34d224r7d
  *     responses:
  *       200:
  *         description: The board was deleted
  *         content:
  *           application/json:
  *             schema:
+ *               $ref: "#/components/schemas/Board"
+ *       404:
+ *         description: The board was not found
+ *         content:
+ *           application/json:
+ *             schema:
  *               type: object
+ *               required:
+ *                 - message
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Board deleted successfully
+ *                   example: Board not found
  */
 router.delete("/:id", controller.deleteBoard);
 

@@ -99,9 +99,22 @@ const createBoard = async (req: Request, res: Response, next: Function) => {
 
 /**
  * Delete a board
+ *
+ * @param {string} req.params.id The id of the board to delete
  */
-const deleteBoard = (req: Request, res: Response, next: Function) => {
-  return res.status(200).json({ message: "Deleting board..." });
+const deleteBoard = async (req: Request, res: Response, next: Function) => {
+  const { id } = req.params;
+
+  let board;
+  try {
+    board = await BoardService.del(id);
+  } catch (err: unknown) {
+    if (err instanceof HttpError) {
+      return res.status(err.code).json({ message: err.message });
+    }
+  }
+
+  return res.status(200).json({ board });
 };
 
 export default {

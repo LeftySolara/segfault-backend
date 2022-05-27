@@ -82,4 +82,24 @@ describe("The Board service", () => {
       expect(board).toEqual(boardObject);
     });
   });
+
+  describe("del", () => {
+    it("should return an object containing information about the deleted board", async () => {
+      const categoryId = await testHelpers.generateCategoryId("del test");
+      const boardId = await testHelpers.generateBoardId(
+        "del test",
+        "deletion test",
+        categoryId,
+      );
+
+      const board = await BoardService.del(boardId);
+      expect(board).toEqual(boardObject);
+    });
+
+    it("should throw an error when the board cannot be found", async () => {
+      expect(async () => {
+        await BoardService.del("123456789012");
+      }).rejects.toThrow();
+    });
+  });
 });

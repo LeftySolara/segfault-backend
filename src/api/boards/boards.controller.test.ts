@@ -218,14 +218,44 @@ describe("The boards controller", () => {
       status: jest.fn().mockReturnThis(),
     } as unknown;
 
-    it("should return 200 and a confirmation message", () => {
-      controller.deleteBoard(
+    it("should return 200 and a board object", async () => {
+      const categoryId = await testHelpers.generateCategoryId("deleteBoard");
+      const boardId = await testHelpers.generateBoardId(
+        "deleteBoard",
+        "delete board",
+        categoryId,
+      );
+      const req = {
+        params: {
+          id: boardId,
+        },
+      } as unknown;
+
+      await controller.deleteBoard(
         req as Request,
         mockResponse as Response,
         jest.fn(),
       );
       const mRes = mockResponse as Response;
       expect(mRes.status).toBeCalledWith(200);
+      expect(mRes.json).toBeCalledWith({ board: boardObject });
+    });
+
+    it("should return 404 and an error message if the board is not found", async () => {
+      const req = {
+        params: {
+          id: "123456789012",
+        },
+      } as unknown;
+
+      await controller.deleteBoard(
+        req as Request,
+        mockResponse as Response,
+        jest.fn(),
+      );
+
+      const mRes = mockResponse as Response;
+      expect(mRes.status).toBeCalledWith(404);
       expect(mRes.json).toBeCalledWith({ message: expect.any(String) });
     });
   });

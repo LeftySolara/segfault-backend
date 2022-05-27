@@ -171,9 +171,51 @@ const create = async (
   return board.toObject({ getters: true });
 };
 
+/**
+ * Delete a board from the database
+ *
+ * @param {string} id The id of the board to delete
+ */
+const del = async (id: string) => {
+  let board;
+  try {
+    board = await BoardModel.findById(id);
+  } catch (err) {
+    throw new HttpError("Could not delete board", 500);
+  }
+
+  if (!board) {
+    throw new HttpError("Could not find board", 404);
+  }
+
+  const boardObj = board.toObject({ getters: true });
+  try {
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+
+    // Remove the board from its category
+    const boardId = board.id;
+    const oldCategory = await BoardCategoryModel.findById(board.category.id);
+    const idx = oldCategory?.boards.findIndex(
+      (boardObj) => boardObj.id === boardId,
+    );
+    oldCategory?.boards.splice(idx!, 1);
+    await oldCategory?.save({ session: sess, validateModifiedOnly: true });
+
+    // Delete the board
+    await BoardModel.findByIdAndDelete(boardId);
+    await sess.commitTransaction();
+  } catch (err) {
+    throw new HttpError("Unable to delete board", 500);
+  }
+
+  return boardObj;
+};
+
 export default {
   getAll,
   getById,
   update,
   create,
+  del,
 };

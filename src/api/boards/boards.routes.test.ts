@@ -125,12 +125,30 @@ describe("Test the routes at /boards", () => {
       });
     });
 
-    it("should respond to DELETE requests by returning 200 and a confirmation message", async () => {
-      const response: request.Response = await request(app).delete(
-        "/boards/123",
-      );
-      expect(response.statusCode).toBe(200);
-      expect(response.body).toEqual(responseMessage);
+    describe("for DELETE requests", () => {
+      it("should return 200 and a board object", async () => {
+        const categoryId = await testHelpers.generateCategoryId("DELETE test");
+        const boardId = await testHelpers.generateBoardId(
+          "DELETE Test",
+          "Testing DELETE",
+          categoryId,
+        );
+
+        const response: request.Response = await request(app).delete(
+          `/boards/${boardId}`,
+        );
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toEqual({ board: boardObject });
+      });
+
+      it("should return 404 and an error message when the board is not found", async () => {
+        const response: request.Response = await request(app).delete(
+          "/boards/123456789012",
+        );
+
+        expect(response.statusCode).toBe(404);
+        expect(response.body).toEqual(responseMessage);
+      });
     });
   });
 });
