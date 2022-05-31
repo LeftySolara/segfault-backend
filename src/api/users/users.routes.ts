@@ -1,4 +1,5 @@
 import express from "express";
+import { check } from "express-validator";
 import controller from "./users.controller";
 
 /**
@@ -51,7 +52,25 @@ import controller from "./users.controller";
  *       content:
  *         application/json:
  *           schema:
- *             $ref: "#/components/schemas/User"
+ *             type: object
+ *             required:
+ *               - username
+ *               - email
+ *               - password
+ *               - confirmPassword
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 description: The user's username
+ *               email:
+ *                 type: string
+ *                 description: The user's email address
+ *               password:
+ *                 type: string
+ *                 description: The user's password
+ *               confirmPassword:
+ *                 type: string
+ *                 description: The user's password again
  * tags:
  *   name: Users
  *   description: Operations on user accounts
@@ -147,11 +166,49 @@ router.patch("/:id", controller.updateUser);
  *             schema:
  *               type: object
  *               properties:
+ *                 username:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 userId:
+ *                   type: string
+ *                 token:
+ *                   type: string
+ *       422:
+ *         description: The user already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
  *                 message:
  *                   type: string
- *                   example: User created successfully
+ *                   example: User exists
+
  */
-router.post("/", controller.createUser);
+router.post(
+  "/",
+  [
+    check("username").not().isEmpty(),
+    check("email").isEmail(),
+    check("password")
+      .isLength({ min: 8 })
+      .withMessage("Your password must be at least 8 characters.")
+      .matches(/\d/)
+      .withMessage("Your password should contain at least one number.")
+      .matches(/[!@#$%^&*(),.?":{}|<>]/)
+      .withMessage(
+        "Your password must contain at least one special character.",
+      ),
+    check("confirmPassword").custom((value, { req }) => {
+      if (value !== req.body.password) {
+        throw new Error("Confirm password does not match.");
+      }
+      return true;
+    }),
+  ],
+  controller.createUser,
+);
 
 /**
  * @swagger

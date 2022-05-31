@@ -58,21 +58,76 @@ describe("The users controller", () => {
   });
 
   describe("createUser", () => {
-    it("should return 201 and a confirmation message", () => {
-      controller.createUser(
+    it("should return 201 and an object containing user information", async () => {
+      const username = "test_user";
+      const email = "test@example.com";
+      const password = "password123";
+
+      const req = { body: { username, email, password } };
+
+      const mockResponse = {
+        json: jest.fn(),
+        status: jest.fn().mockReturnThis(),
+      } as unknown;
+
+      await controller.createUser(
         req as Request,
         mockResponse as Response,
         jest.fn(),
       );
+
       const mRes = mockResponse as Response;
       expect(mRes.status).toBeCalledWith(201);
+      expect(mRes.json).toBeCalledWith(
+        expect.objectContaining({
+          user: {
+            username,
+            email,
+            userId: expect.any(String),
+            token: expect.any(String),
+          },
+        }),
+      );
+    });
+
+    it("should return 422 if the user already exists", async () => {
+      const username = "test_user";
+      const email = "test@example.com";
+      const password = "password123";
+
+      const req = { body: { username, email, password } };
+
+      await controller.createUser(
+        req as Request,
+        mockResponse as Response,
+        jest.fn(),
+      );
+
+      const mResponse = {
+        json: jest.fn(),
+        status: jest.fn().mockReturnThis(),
+      } as unknown;
+
+      await controller.createUser(
+        req as Request,
+        mResponse as Response,
+        jest.fn(),
+      );
+
+      const mRes = mResponse as Response;
+      expect(mRes.status).toBeCalledWith(422);
       expect(mRes.json).toBeCalledWith({ message: expect.any(String) });
     });
   });
 
   describe("deleteUser", () => {
-    it("should return 200 and a confirmation message", () => {
-      controller.createUser(
+    it("should return 200 and a confirmation message", async () => {
+      const username = "test_user";
+      const email = "test@example.com";
+      const password = "password123";
+
+      const req = { body: { username, email, password } };
+      await controller.createUser(
         req as Request,
         mockResponse as Response,
         jest.fn(),

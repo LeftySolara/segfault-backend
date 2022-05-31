@@ -1,4 +1,7 @@
 import { Request, Response } from "express";
+import validateRequestInputs from "../../utils/inputValidator";
+import HttpError from "../../utils/httpError";
+import UserService from "../../services/user";
 
 /**
  * @returns On success, returns an array containing user objects
@@ -53,9 +56,29 @@ const updateUser = (req: Request, res: Response, next: Function) => {
 
 /**
  * Create a new user account
+ *
+ * @param {string} req.body.username The user's username
+ * @param {string} req.body.email The user's email address
+ * @param {string} req.body.password The user's password
  */
-const createUser = (req: Request, res: Response, next: Function) => {
-  return res.status(201).json({ message: "Creating user..." });
+const createUser = async (req: Request, res: Response, next: Function) => {
+  const validationError = validateRequestInputs(req);
+  if (validationError) {
+    return next(validationError);
+  }
+
+  const { username, email, password } = req.body;
+
+  let userInfo;
+  try {
+    userInfo = await UserService.create(username, email, password);
+  } catch (err: unknown) {
+    if (err instanceof HttpError) {
+      return res.status(err.code).json({ message: err.message });
+    }
+  }
+
+  return res.status(201).json({ user: userInfo });
 };
 
 /**
