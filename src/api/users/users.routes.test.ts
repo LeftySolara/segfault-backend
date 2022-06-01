@@ -9,8 +9,9 @@ describe("Test the routes at /users", () => {
 
   const userObject = expect.objectContaining({
     _id: expect.any(String),
+    id: expect.any(String),
+    username: expect.any(String),
     email: expect.any(String),
-    password: expect.any(String),
     posts: expect.any(Array),
     threads: expect.any(Array),
     joinDate: expect.any(String),
@@ -19,14 +20,20 @@ describe("Test the routes at /users", () => {
   testHelpers.routeTestInit(app);
   [
     describe("the endpoint /users", () => {
-      const usersArray = expect.arrayContaining([userObject]);
+      describe("for GET requests", () => {
+        it("should respond with 200 and an array of user objects", async () => {
+          // Create a user to fetch
+          const username = "GET_test";
+          const email = "getTest@example.com";
+          const password = "password123!@#";
+          await request(app)
+            .post("/users")
+            .send({ username, email, password, confirmPassword: password });
 
-      it("should respond to GET requests by returning 200 and a list of user objects", async () => {
-        const response: request.Response = await request(app).get("/users");
-        expect(response.statusCode).toBe(200);
-        expect(response.body).toEqual(
-          expect.objectContaining({ users: usersArray }),
-        );
+          const response: request.Response = await request(app).get("/users");
+          expect(response.statusCode).toBe(200);
+          expect(response.body).toEqual({ users: [userObject] });
+        });
       });
 
       describe("for POST requests", () => {

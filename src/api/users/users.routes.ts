@@ -27,10 +27,6 @@ import controller from "./users.controller";
  *           type: string
  *           format: email
  *           description: The user's email address
- *         password:
- *           type: string
- *           format: password
- *           description: The user's hashed password
  *         joinDate:
  *           type: string
  *           format: date-time
@@ -82,7 +78,7 @@ const router: express.Router = express.Router();
  * @swagger
  * /users:
  *   get:
- *     summary: Returns all users
+ *     summary: Fetch a list of all users
  *     tags: [Users]
  *     responses:
  *       200:
@@ -93,6 +89,16 @@ const router: express.Router = express.Router();
  *               type: array
  *               items:
  *                 $ref: "#/components/schemas/User"
+ *       500:
+ *         description: Unable to fetch users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Unable to fetch users
  */
 router.get("/", controller.getUsers);
 

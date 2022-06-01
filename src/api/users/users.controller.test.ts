@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import mongoose from "mongoose";
 import testHelpers from "../../utils/testHelpers";
 import controller from "./users.controller";
 
@@ -9,25 +10,48 @@ describe("The users controller", () => {
     status: jest.fn().mockReturnThis(),
   } as unknown;
 
-  const userObject = expect.objectContaining({
-    _id: expect.any(String),
+  const userObject = {
+    _id: expect.any(mongoose.Types.ObjectId),
+    id: expect.any(String),
+    __v: expect.any(Number),
+    username: expect.any(String),
     email: expect.any(String),
-    password: expect.any(String),
     posts: expect.any(Array),
     threads: expect.any(Array),
-    joinDate: expect.any(String),
-  });
-
-  const usersArray = expect.arrayContaining([userObject]);
+    joinDate: expect.any(Date),
+  };
 
   testHelpers.controllerTestInit();
 
   describe("getUsers", () => {
-    it("should return 200 and an array of user objects", () => {
-      controller.getUsers(req as Request, mockResponse as Response, jest.fn());
+    it("should return 200 and an array of user objects", async () => {
+      const createReq = {
+        body: {
+          username: "getUsers_test",
+          email: "getUsers@example.com",
+          password: "34fr4g#$#g3g3Hbo",
+        },
+      } as unknown;
+
+      const createRes = {
+        json: jest.fn(),
+        status: jest.fn().mockReturnThis(),
+      } as unknown;
+
+      await controller.createUser(
+        createReq as Request,
+        createRes as Response,
+        jest.fn(),
+      );
+
+      await controller.getUsers(
+        req as Request,
+        mockResponse as Response,
+        jest.fn(),
+      );
       const mRes = mockResponse as Response;
       expect(mRes.status).toBeCalledWith(200);
-      expect(mRes.json).toBeCalledWith({ users: usersArray });
+      expect(mRes.json).toBeCalledWith({ users: [userObject] });
     });
   });
 

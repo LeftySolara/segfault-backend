@@ -23,6 +23,23 @@ const userExists = async (username: string, email: string) => {
 };
 
 /**
+ * Fetch a list of all users
+ *
+ * @returns An array containing user objects
+ */
+const getAll = async () => {
+  let users;
+
+  try {
+    users = await UserModel.find({}, "-password");
+  } catch (err) {
+    throw new HttpError("Failed to fetch users", 500);
+  }
+
+  return users.map((user) => user.toObject({ getters: true }));
+};
+
+/**
  * Create a new user account
  *
  * @param {string} username The user's display name
@@ -74,4 +91,4 @@ const create = async (username: string, email: string, password: string) => {
   };
 };
 
-export default { create };
+export default { getAll, create };
