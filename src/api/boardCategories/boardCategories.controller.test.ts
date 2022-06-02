@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import mongoose from "mongoose";
 import testHelpers from "../../utils/testHelpers";
 import controller from "./boardCategories.controller";
 
@@ -10,57 +11,45 @@ describe("The boardCategories controller", () => {
     status: jest.fn().mockReturnThis(),
   } as unknown;
 
-  const boardsArray = expect.arrayContaining(
-    expect.objectContaining({
-      id: expect.any(String),
-      topic: expect.any(String),
-    }),
-  );
-
-  const boardCategoryObject = expect.objectContaining({
-    _id: expect.any(String),
-    topc: expect.any(String),
-    boards: boardsArray,
+  const boardCategoryObject = {
+    _id: expect.any(mongoose.Types.ObjectId),
+    topic: expect.any(String),
+    boards: expect.any(Array),
     sortOrder: expect.any(Number),
     id: expect.any(String),
     __v: expect.any(Number),
-  });
-
-  const boardCategoryArray = expect.arrayContaining([boardCategoryObject]);
+  };
 
   testHelpers.controllerTestInit();
 
-  // This test fails even when the received output matches the expected output.
-  // See issue #25: https://git.julianneadams.info/segfault/segfault-backend/-/issues/25.
+  describe("getCategories", () => {
+    it("should return 200 and an array of boardCategory objects", async () => {
+      const req = { body: { topic: "FetchMe", sortOrder: 2 } };
 
-  // describe("getCategories", () => {
-  //   it("should return 200 and an array of boardCategory objects", async () => {
-  //     const req = { body: { topic: "FetchMe", sortOrder: 2 } };
+      const mResponse = {
+        json: jest.fn(),
+        status: jest.fn().mockReturnThis(),
+      } as unknown;
 
-  //     const mResponse = {
-  //       json: jest.fn(),
-  //       status: jest.fn().mockReturnThis(),
-  //     } as unknown;
+      // Create a category to fetch
+      await controller.createCategory(
+        req as Request,
+        mResponse as Response,
+        jest.fn(),
+      );
 
-  //     // Create a category to fetch
-  //     await controller.createCategory(
-  //       req as Request,
-  //       mResponse as Response,
-  //       jest.fn(),
-  //     );
-
-  //     await controller.getCategories(
-  //       req as Request,
-  //       mockResponse as Response,
-  //       jest.fn(),
-  //     );
-  //     const mRes = mockResponse as Response;
-  //     expect(mRes.status).toBeCalledWith(200);
-  //     expect(mRes.json).toBeCalledWith(
-  //       { boardCategories: boardCategoryArray },
-  //     );
-  //   });
-  // });
+      await controller.getCategories(
+        req as Request,
+        mockResponse as Response,
+        jest.fn(),
+      );
+      const mRes = mockResponse as Response;
+      expect(mRes.status).toBeCalledWith(200);
+      expect((mRes.json as any).mock.calls[0][0]).toMatchObject({
+        categories: [boardCategoryObject],
+      });
+    });
+  });
 
   describe("getCategoryById", () => {
     it("should return 404 and an error message when unsuccessful", async () => {
