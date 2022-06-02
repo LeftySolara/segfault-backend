@@ -253,24 +253,4 @@ router.post(
   controller.createUser,
 );
 
-/**
- * @swagger
- * /users/{id}:
- *   delete:
- *     summary: Delete a user
- *     tags: [Users]
- *     responses:
- *       200:
- *         description: The user was deleted
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: User deleted successfully
- */
-router.delete("/:id", controller.deleteUser);
-
 export default router;

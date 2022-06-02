@@ -102,17 +102,9 @@ const createUser = async (req: Request, res: Response, next: Function) => {
   return res.status(201).json({ user: userInfo });
 };
 
-/**
- * Delete a user
- */
-const deleteUser = (req: Request, res: Response, next: Function) => {
-  return res.status(200).json({ message: "Deleting user..." });
-};
-
 export default {
   getUsers,
   getUserById,
   updateUser,
   createUser,
-  deleteUser,
 };

@@ -287,14 +287,6 @@ describe("Test the routes at /users", () => {
           expect(response.body).toEqual(responseMessage);
         });
       });
-
-      it("should respond to DELETE requests by returning 200 and a confirmation message upon success", async () => {
-        const response: request.Response = await request(app).delete(
-          "/users/123",
-        );
-        expect(response.statusCode).toBe(200);
-        expect(response.body).toEqual(responseMessage);
-      });
     }),
   ];
 });
