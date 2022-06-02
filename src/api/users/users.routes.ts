@@ -1,4 +1,5 @@
 import express from "express";
+import { check } from "express-validator";
 import controller from "./users.controller";
 
 /**
@@ -26,10 +27,6 @@ import controller from "./users.controller";
  *           type: string
  *           format: email
  *           description: The user's email address
- *         password:
- *           type: string
- *           format: password
- *           description: The user's hashed password
  *         joinDate:
  *           type: string
  *           format: date-time
@@ -51,7 +48,25 @@ import controller from "./users.controller";
  *       content:
  *         application/json:
  *           schema:
- *             $ref: "#/components/schemas/User"
+ *             type: object
+ *             required:
+ *               - username
+ *               - email
+ *               - password
+ *               - confirmPassword
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 description: The user's username
+ *               email:
+ *                 type: string
+ *                 description: The user's email address
+ *               password:
+ *                 type: string
+ *                 description: The user's password
+ *               confirmPassword:
+ *                 type: string
+ *                 description: The user's password again
  * tags:
  *   name: Users
  *   description: Operations on user accounts
@@ -63,7 +78,7 @@ const router: express.Router = express.Router();
  * @swagger
  * /users:
  *   get:
- *     summary: Returns all users
+ *     summary: Fetch a list of all users
  *     tags: [Users]
  *     responses:
  *       200:
@@ -74,6 +89,16 @@ const router: express.Router = express.Router();
  *               type: array
  *               items:
  *                 $ref: "#/components/schemas/User"
+ *       500:
+ *         description: Unable to fetch users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Unable to fetch users
  */
 router.get("/", controller.getUsers);
 
@@ -81,7 +106,7 @@ router.get("/", controller.getUsers);
  * @swagger
  * /users/{id}:
  *   get:
- *     summary: Gets a user based on their id
+ *     summary: Get a user based on their id
  *     tags: [Users]
  *     parameters:
  *       - in : path
@@ -97,8 +122,16 @@ router.get("/", controller.getUsers);
  *           application/json:
  *             schema:
  *               $ref: "#/components/schemas/User"
- *       400:
+ *       404:
  *         description: User cannot be found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User cannot be found
  */
 router.get("/:id", controller.getUserById);
 
@@ -116,9 +149,17 @@ router.get("/:id", controller.getUserById);
  *           type: string
  *           example: 12cew34d224r7d
  *         required: true
+ *     requestBody:
+ *       $ref: "#/components/requestBodies/UserBody"
  *     responses:
  *       200:
  *         description: The user was updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/User"
+ *       404:
+ *         description: The user was not found
  *         content:
  *           application/json:
  *             schema:
@@ -126,10 +167,31 @@ router.get("/:id", controller.getUserById);
  *               properties:
  *                 message:
  *                   type: string
- *                   example: User updated successfully
+ *                   example: User cannot be found
  */
-// TODO: document request body
-router.patch("/:id", controller.updateUser);
+router.patch(
+  "/:id",
+  [
+    check("username").not().isEmpty(),
+    check("email").isEmail(),
+    check("password")
+      .isLength({ min: 8 })
+      .withMessage("Your password must be at least 8 characters.")
+      .matches(/\d/)
+      .withMessage("Your password should contain at least one number.")
+      .matches(/[!@#$%^&*(),.?":{}|<>]/)
+      .withMessage(
+        "Your password must contain at least one special character.",
+      ),
+    check("confirmPassword").custom((value, { req }) => {
+      if (value !== req.body.password) {
+        throw new Error("Confirm password does not match.");
+      }
+      return true;
+    }),
+  ],
+  controller.updateUser,
+);
 
 /**
  * @swagger
@@ -147,21 +209,16 @@ router.patch("/:id", controller.updateUser);
  *             schema:
  *               type: object
  *               properties:
- *                 message:
+ *                 username:
  *                   type: string
- *                   example: User created successfully
- */
-router.post("/", controller.createUser);
-
-/**
- * @swagger
- * /users/{id}:
- *   delete:
- *     summary: Delete a user
- *     tags: [Users]
- *     responses:
- *       200:
- *         description: The user was deleted
+ *                 email:
+ *                   type: string
+ *                 userId:
+ *                   type: string
+ *                 token:
+ *                   type: string
+ *       422:
+ *         description: The user already exists
  *         content:
  *           application/json:
  *             schema:
@@ -169,8 +226,31 @@ router.post("/", controller.createUser);
  *               properties:
  *                 message:
  *                   type: string
- *                   example: User deleted successfully
+ *                   example: User exists
+
  */
-router.delete("/:id", controller.deleteUser);
+router.post(
+  "/",
+  [
+    check("username").not().isEmpty(),
+    check("email").isEmail(),
+    check("password")
+      .isLength({ min: 8 })
+      .withMessage("Your password must be at least 8 characters.")
+      .matches(/\d/)
+      .withMessage("Your password should contain at least one number.")
+      .matches(/[!@#$%^&*(),.?":{}|<>]/)
+      .withMessage(
+        "Your password must contain at least one special character.",
+      ),
+    check("confirmPassword").custom((value, { req }) => {
+      if (value !== req.body.password) {
+        throw new Error("Confirm password does not match.");
+      }
+      return true;
+    }),
+  ],
+  controller.createUser,
+);
 
 export default router;

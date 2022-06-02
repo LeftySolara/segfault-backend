@@ -5,6 +5,7 @@ import mongooseLoader from "../loaders/mongoose";
 
 import BoardCategoryService from "../services/boardCategory";
 import BoardService from "../services/board";
+import UserService from "../services/user";
 
 const routeTestInit = (app: express.Application) => {
   beforeAll(async () => {
@@ -75,10 +76,29 @@ const generateBoardId = async (
   return id;
 };
 
+/**
+ * Create a new user and return its id
+ *
+ * @param {string} username The user's username
+ * @param {string} email The user's email address
+ * @param {string} password The user's password
+ *
+ * @returns
+ */
+const generateUserId = async (
+  username: string,
+  email: string,
+  password: string,
+) => {
+  const userObj: any = await UserService.create(username, email, password);
+  return userObj.userId;
+};
+
 export default {
   routeTestInit,
   controllerTestInit,
   serviceTestInit,
   generateCategoryId,
   generateBoardId,
+  generateUserId,
 };
