@@ -63,6 +63,58 @@ const getById = async (id: string) => {
 };
 
 /**
+ * Update a user's information
+ *
+ * @param {string} id The user's id
+ * @param {string} username The user's new username
+ * @param {string} email The user's new email address
+ * @param {string} password The user's new password
+ *
+ * @returns An object containing updated user information
+ */
+const update = async (
+  id: string,
+  username: string,
+  email: string,
+  password: string,
+) => {
+  let user;
+
+  try {
+    user = await UserModel.findById(id);
+  } catch (err: unknown) {
+    throw new HttpError("Unable to fetch user", 500);
+  }
+
+  if (!user) {
+    throw new HttpError("Could not find user with specified id", 404);
+  }
+
+  user.username = username;
+  user.email = email;
+  user.password = password;
+
+  try {
+    await user.save({ validateModifiedOnly: true });
+  } catch (err: unknown) {
+    throw new HttpError("Unable to update user information", 500);
+  }
+
+  /* Here we manually remove the password property from the returned user object.
+   * This does not affect the password field in the document stored in the database.
+   *
+   * We do this because mongoose's toObject() method fetches all fields of a document regardless
+   * of the projection specified in the previous find() call. So, for example, calling
+   * user = User.findById(userId, "-password") will fetch the document with the correct projection,
+   * but the following user.toObject() call will re-add the password property.
+   */
+  const returnedUser: any = user.toObject({ getters: true });
+  delete returnedUser.password;
+
+  return returnedUser;
+};
+
+/**
  * Create a new user account
  *
  * @param {string} username The user's display name
@@ -114,4 +166,4 @@ const create = async (username: string, email: string, password: string) => {
   };
 };
 
-export default { getAll, getById, create };
+export default { getAll, getById, update, create };

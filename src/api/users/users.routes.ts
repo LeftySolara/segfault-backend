@@ -149,9 +149,17 @@ router.get("/:id", controller.getUserById);
  *           type: string
  *           example: 12cew34d224r7d
  *         required: true
+ *     requestBody:
+ *       $ref: "#/components/requestBodies/UserBody"
  *     responses:
  *       200:
  *         description: The user was updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/User"
+ *       404:
+ *         description: The user was not found
  *         content:
  *           application/json:
  *             schema:
@@ -159,10 +167,31 @@ router.get("/:id", controller.getUserById);
  *               properties:
  *                 message:
  *                   type: string
- *                   example: User updated successfully
+ *                   example: User cannot be found
  */
-// TODO: document request body
-router.patch("/:id", controller.updateUser);
+router.patch(
+  "/:id",
+  [
+    check("username").not().isEmpty(),
+    check("email").isEmail(),
+    check("password")
+      .isLength({ min: 8 })
+      .withMessage("Your password must be at least 8 characters.")
+      .matches(/\d/)
+      .withMessage("Your password should contain at least one number.")
+      .matches(/[!@#$%^&*(),.?":{}|<>]/)
+      .withMessage(
+        "Your password must contain at least one special character.",
+      ),
+    check("confirmPassword").custom((value, { req }) => {
+      if (value !== req.body.password) {
+        throw new Error("Confirm password does not match.");
+      }
+      return true;
+    }),
+  ],
+  controller.updateUser,
+);
 
 /**
  * @swagger

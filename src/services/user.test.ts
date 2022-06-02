@@ -59,6 +59,49 @@ describe("The User service", () => {
     });
   });
 
+  describe("update", () => {
+    it("should return an object containing updated user information", async () => {
+      const userId = await testHelpers.generateUserId(
+        "original_username",
+        "original_email@example.com",
+        "original_password123"!,
+      );
+
+      const username = "new_username";
+      const email = "new_email@example.com";
+      const password = "new_password123!";
+      const userInfo = await UserService.update(
+        userId,
+        username,
+        email,
+        password,
+      );
+
+      expect(userInfo).toMatchObject({
+        __v: expect.any(Number),
+        _id: new mongoose.Types.ObjectId(userId),
+        id: userId,
+        username,
+        email,
+        posts: expect.any(Array),
+        threads: expect.any(Array),
+        joinDate: expect.any(Date),
+      });
+    });
+
+    it("should throw an error if the user does not exist", () => {
+      expect(
+        async () =>
+          await UserService.update(
+            "123456789012",
+            "username",
+            "email",
+            "password",
+          ),
+      ).rejects.toThrow();
+    });
+  });
+
   describe("create", () => {
     it("should return an object containing user information", async () => {
       const username = "test_user";

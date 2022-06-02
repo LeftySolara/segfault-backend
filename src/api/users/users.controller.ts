@@ -47,10 +47,32 @@ const getUserById = async (req: Request, res: Response, next: Function) => {
 /**
  * Update a user's information
  *
- * @returns If successful, returns 200 status and a message indicating completion
+ * @param {string} req.body.username The user's new username
+ * @param {string} req.body.email The user's new email address
+ * @param {string} req.body.password The user's new password
+ * @param {string} req.params.id The id of the user to update
+ *
+ * @returns On success, returns 200 and an updated user object
  */
-const updateUser = (req: Request, res: Response, next: Function) => {
-  return res.status(200).json({ message: "Updating user..." });
+const updateUser = async (req: Request, res: Response, next: Function) => {
+  const validationError = validateRequestInputs(req);
+  if (validationError) {
+    return next(validationError);
+  }
+
+  const { username, email, password } = req.body;
+  const { id } = req.params;
+
+  let user;
+  try {
+    user = await UserService.update(id, username, email, password);
+  } catch (err: unknown) {
+    if (err instanceof HttpError) {
+      return res.status(err.code).json({ message: err.message });
+    }
+  }
+
+  return res.status(200).json({ user });
 };
 
 /**

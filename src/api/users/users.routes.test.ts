@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import request from "supertest";
 import testHelpers from "../../utils/testHelpers";
 import app from "../../app";
@@ -178,12 +179,113 @@ describe("Test the routes at /users", () => {
         });
       });
 
-      it("should respond to PATCH requests by returning 200 and a confirmation message upon success", async () => {
-        const response: request.Response = await request(app).patch(
-          "/users/123",
-        );
-        expect(response.statusCode).toBe(200);
-        expect(response.body).toEqual(responseMessage);
+      describe("for PATCH requests", () => {
+        it("should respond with 200 and an updated user object", async () => {
+          const userId = await testHelpers.generateUserId(
+            "original_username",
+            "original_email@example.com",
+            "original_password123!",
+          );
+
+          const username = "new_username";
+          const email = "new_email@example.com";
+          const password = "new_password123!";
+          const response: request.Response = await request(app)
+            .patch(`/users/${userId}`)
+            .send({
+              id: userId,
+              username,
+              email,
+              password,
+              confirmPassword: password,
+            });
+
+          expect(response.statusCode).toBe(200);
+          expect(response.body).toMatchObject({
+            user: {
+              __v: expect.any(Number),
+              _id: new mongoose.Types.ObjectId(userId),
+              id: userId,
+              username,
+              email,
+              posts: expect.any(Array),
+              threads: expect.any(Array),
+              joinDate: expect.any(String),
+            },
+          });
+        });
+
+        it("should respond with 422 and an error message if the username is empty", async () => {
+          const userId = await testHelpers.generateUserId(
+            "usernameEmpty",
+            "usernameEmpty@example.com",
+            "original_password123!",
+          );
+
+          const username = "";
+          const email = "new_email@example.com";
+          const password = "new_password123!";
+          const response: request.Response = await request(app)
+            .patch(`/users/${userId}`)
+            .send({
+              id: userId,
+              username,
+              email,
+              password,
+              confirmPassword: password,
+            });
+
+          expect(response.statusCode).toBe(422);
+          expect(response.body).toEqual(responseMessage);
+        });
+
+        it("should respond with 422 and an error message if the email address is malformed", async () => {
+          const userId = await testHelpers.generateUserId(
+            "malformed_email",
+            "malformedEmail@example.com",
+            "original_password123!",
+          );
+
+          const username = "malformed_email";
+          const email = "new_email_address";
+          const password = "new_password123!";
+          const response: request.Response = await request(app)
+            .patch(`/users/${userId}`)
+            .send({
+              id: userId,
+              username,
+              email,
+              password,
+              confirmPassword: password,
+            });
+
+          expect(response.statusCode).toBe(422);
+          expect(response.body).toEqual(responseMessage);
+        });
+
+        it("should respond with 422 and an error message if the password does not meet minimum requirements", async () => {
+          const userId = await testHelpers.generateUserId(
+            "weak_password",
+            "weakPassword@example.com",
+            "original_password123!",
+          );
+
+          const username = "weak_password";
+          const email = "weakPassword@example.com";
+          const password = "1234";
+          const response: request.Response = await request(app)
+            .patch(`/users/${userId}`)
+            .send({
+              id: userId,
+              username,
+              email,
+              password,
+              confirmPassword: password,
+            });
+
+          expect(response.statusCode).toBe(422);
+          expect(response.body).toEqual(responseMessage);
+        });
       });
 
       it("should respond to DELETE requests by returning 200 and a confirmation message upon success", async () => {

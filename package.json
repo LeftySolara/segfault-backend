@@ -7,7 +7,7 @@
     "start": "ts-node ./src/server.ts",
     "dev": "NODE_ENV=development nodemon ./src/server.ts",
     "prod": "NODE_ENV=production nodemon ./src/server.ts",
-    "test": "NODE_ENV=test jest --coverage --runInBand"
+    "test": "NODE_ENV=test jest --coverage --runInBand --verbose"
   },
   "author": "Julianne Adams <julianne@julianneadams.info>",
   "license": "MIT",
