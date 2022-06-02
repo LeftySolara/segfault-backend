@@ -106,7 +106,7 @@ router.get("/", controller.getUsers);
  * @swagger
  * /users/{id}:
  *   get:
- *     summary: Gets a user based on their id
+ *     summary: Get a user based on their id
  *     tags: [Users]
  *     parameters:
  *       - in : path
@@ -122,8 +122,16 @@ router.get("/", controller.getUsers);
  *           application/json:
  *             schema:
  *               $ref: "#/components/schemas/User"
- *       400:
+ *       404:
  *         description: User cannot be found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User cannot be found
  */
 router.get("/:id", controller.getUserById);
 

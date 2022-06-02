@@ -22,18 +22,26 @@ const getUsers = async (req: Request, res: Response, next: Function) => {
   return res.status(200).json({ users });
 };
 
-const getUserById = (req: Request, res: Response, next: Function) => {
-  const user = {
-    _id: "456",
-    username: "example",
-    email: "hello@example.com",
-    password: "qwerty",
-    posts: [],
-    threads: [],
-    joinDate: Date.now().toString(),
-  };
+/**
+ * Get a user by their id
+ *
+ * @param {string} req.params.id The id of the user to fetch
+ *
+ * @returns On success, returns 200 and a user object
+ */
+const getUserById = async (req: Request, res: Response, next: Function) => {
+  const { id } = req.params;
 
-  return user ? res.status(200).json({ user }) : res.status(400);
+  let user;
+  try {
+    user = await UserService.getById(id);
+  } catch (err: unknown) {
+    if (err instanceof HttpError) {
+      return res.status(err.code).json({ message: err.message });
+    }
+  }
+
+  return res.status(200).json({ user });
 };
 
 /**

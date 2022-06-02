@@ -40,6 +40,29 @@ const getAll = async () => {
 };
 
 /**
+ * Fetch a user based on their id
+ *
+ * @param {string} id The id of the user to fetch
+ *
+ * @returns On success, returns an object containing user information
+ */
+const getById = async (id: string) => {
+  let user;
+
+  try {
+    user = await UserModel.findById(id, "-password");
+  } catch (err: unknown) {
+    throw new HttpError("Unable to fetch user", 500);
+  }
+
+  if (!user) {
+    throw new HttpError(`Could not find user with id ${id}`, 404);
+  }
+
+  return user.toObject({ getters: true });
+};
+
+/**
  * Create a new user account
  *
  * @param {string} username The user's display name
@@ -91,4 +114,4 @@ const create = async (username: string, email: string, password: string) => {
   };
 };
 
-export default { getAll, create };
+export default { getAll, getById, create };

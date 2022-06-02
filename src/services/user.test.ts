@@ -28,6 +28,37 @@ describe("The User service", () => {
     });
   });
 
+  describe("getById", () => {
+    it("should return an object containing user information", async () => {
+      const username = "getById";
+      const email = "getById@example.com";
+      const password = "34Fg76h$%^ht^7h";
+      const userId = await testHelpers.generateUserId(
+        username,
+        email,
+        password,
+      );
+
+      const userObj = await UserService.getById(userId);
+
+      expect(userObj).toMatchObject({
+        _id: new mongoose.Types.ObjectId(userId),
+        id: userId,
+        username,
+        email,
+        threads: expect.any(Array),
+        posts: expect.any(Array),
+        joinDate: expect.any(Date),
+      });
+    });
+
+    it("should throw an error if the user cannot be found", () => {
+      expect(
+        async () => await UserService.getById("123456789012"),
+      ).rejects.toThrow();
+    });
+  });
+
   describe("create", () => {
     it("should return an object containing user information", async () => {
       const username = "test_user";

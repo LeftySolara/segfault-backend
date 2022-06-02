@@ -56,15 +56,65 @@ describe("The users controller", () => {
   });
 
   describe("getUserById", () => {
-    it("should return 200 and a user object if the user is found", () => {
-      controller.getUserById(
+    it("should return 200 and a user object if the user is found", async () => {
+      const username = "getUSerById";
+      const email = "getUserById@example.com";
+      const password = "password123!@#";
+      const userId = await testHelpers.generateUserId(
+        username,
+        email,
+        password,
+      );
+
+      const req = {
+        params: {
+          id: userId,
+        },
+      } as unknown;
+
+      const mResponse = {
+        json: jest.fn(),
+        status: jest.fn().mockReturnThis(),
+      } as unknown;
+
+      await controller.getUserById(
+        req as Request,
+        mResponse as Response,
+        jest.fn(),
+      );
+
+      const mRes = mResponse as Response;
+      expect(mRes.status).toBeCalledWith(200);
+      expect((mRes.json as any).mock.calls[0][0]).toMatchObject({
+        user: {
+          __v: expect.any(Number),
+          _id: new mongoose.Types.ObjectId(userId),
+          id: userId,
+          username,
+          email,
+          posts: expect.any(Array),
+          threads: expect.any(Array),
+          joinDate: expect.any(Date),
+        },
+      });
+    });
+
+    it("should return 404 and an error message if the user cannot be found", async () => {
+      const req = {
+        params: {
+          id: "123456789012",
+        },
+      } as unknown;
+
+      await controller.getUserById(
         req as Request,
         mockResponse as Response,
         jest.fn(),
       );
+
       const mRes = mockResponse as Response;
-      expect(mRes.status).toBeCalledWith(200);
-      expect(mRes.json).toBeCalledWith({ user: userObject });
+      expect(mRes.status).toBeCalledWith(404);
+      expect(mRes.json).toBeCalledWith({ message: expect.any(String) });
     });
   });
 

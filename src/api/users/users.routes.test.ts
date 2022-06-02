@@ -140,12 +140,42 @@ describe("Test the routes at /users", () => {
     }),
 
     describe("the endpoint /users/{id}", () => {
-      it("should respond to GET requests by returning 200 and a user object", async () => {
-        const response: request.Response = await request(app).get("/users/123");
-        expect(response.statusCode).toBe(200);
-        expect(response.body).toEqual(
-          expect.objectContaining({ user: userObject }),
-        );
+      describe("for GET requests", () => {
+        it("should respond with 200 and a user object", async () => {
+          const username = "getByIdTest";
+          const email = "getByIdTest@example.com";
+          const password = "34rkmfer3#F$##fR";
+          const userId = await testHelpers.generateUserId(
+            username,
+            email,
+            password,
+          );
+
+          const response: request.Response = await request(app).get(
+            `/users/${userId}`,
+          );
+          expect(response.statusCode).toBe(200);
+          expect(response.body).toMatchObject({
+            user: {
+              __v: expect.any(Number),
+              _id: userId,
+              id: userId,
+              username,
+              email,
+              posts: expect.any(Array),
+              threads: expect.any(Array),
+              joinDate: expect.any(String),
+            },
+          });
+        });
+
+        it("should respond with 404 and an error message if the user does not exist", async () => {
+          const response: request.Response = await request(app).get(
+            "/users/123456789012",
+          );
+          expect(response.statusCode).toBe(404);
+          expect(response.body).toEqual(responseMessage);
+        });
       });
 
       it("should respond to PATCH requests by returning 200 and a confirmation message upon success", async () => {
