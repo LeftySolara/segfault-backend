@@ -1,42 +1,82 @@
 import express from "express";
 import mongoose from "mongoose";
-import initLoaders from "../loaders";
-import mongooseLoader from "../loaders/mongoose";
+import { MongoMemoryReplSet } from "mongodb-memory-server";
+import expressLoader from "../loaders/express";
 
 import BoardCategoryService from "../services/boardCategory";
 import BoardService from "../services/board";
 import UserService from "../services/user";
 
+let replset: MongoMemoryReplSet;
+
+// Connect to the database
+const connect = async () => {
+  replset = await MongoMemoryReplSet.create();
+  const uri = replset.getUri();
+  const mongooseOpts = {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  } as mongoose.ConnectOptions;
+
+  await mongoose.connect(uri, mongooseOpts);
+};
+
+// Disconnect from the database
+const closeDatabase = async () => {
+  await mongoose.connection.dropDatabase();
+  await mongoose.connection.close();
+  await replset.stop();
+};
+
+// Remove all data from the database
+const clearDatabase = async () => {
+  const collections = mongoose.connection.collections;
+  for (const key in collections) {
+    const collection = collections[key];
+    await collection.deleteMany({});
+  }
+};
+
 const routeTestInit = (app: express.Application) => {
   beforeAll(async () => {
-    await initLoaders(app);
-    await mongoose.connection.dropDatabase();
+    await expressLoader({ app });
+    await connect();
+  });
+
+  afterEach(async () => {
+    await clearDatabase();
   });
 
   afterAll(async () => {
-    await mongoose.connection.close();
+    await closeDatabase();
   });
 };
 
 const controllerTestInit = () => {
   beforeAll(async () => {
-    await mongooseLoader();
-    await mongoose.connection.dropDatabase();
+    await connect();
+  });
+
+  afterEach(async () => {
+    await clearDatabase();
   });
 
   afterAll(async () => {
-    await mongoose.connection.close();
+    await closeDatabase();
   });
 };
 
 const serviceTestInit = () => {
   beforeAll(async () => {
-    await mongooseLoader();
-    await mongoose.connection.dropDatabase();
+    await connect();
+  });
+
+  afterEach(async () => {
+    await clearDatabase();
   });
 
   afterAll(async () => {
-    await mongoose.connection.close();
+    await closeDatabase();
   });
 };
 

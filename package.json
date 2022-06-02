@@ -7,7 +7,7 @@
     "start": "ts-node ./src/server.ts",
     "dev": "NODE_ENV=development nodemon ./src/server.ts",
     "prod": "NODE_ENV=production nodemon ./src/server.ts",
-    "test": "NODE_ENV=test jest --coverage --runInBand --verbose"
+    "test": "NODE_ENV=test jest --coverage --verbose"
   },
   "author": "Julianne Adams <julianne@julianneadams.info>",
   "license": "MIT",
@@ -30,6 +30,7 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "^28.1.0",
+    "mongodb-memory-server": "^8.6.0",
     "nodemon": "^2.0.16",
     "prettier": "^2.6.2",
     "superagent": "^7.1.3",
