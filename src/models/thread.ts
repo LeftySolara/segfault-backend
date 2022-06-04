@@ -33,7 +33,7 @@ const threadSchema: Schema = new Schema<IThread>({
   topic: { type: String, required: true },
   dateCreated: { type: Date, required: true, immutable: true },
   posts: [{ type: Schema.Types.ObjectId, required: true, ref: "Post" }],
-  lastPost: { type: Schema.Types.ObjectId, required: true, ref: "Post" },
+  lastPost: { type: Schema.Types.ObjectId, required: false, ref: "Post" },
 });
 
 export default model<IThread>("Thread", threadSchema);
