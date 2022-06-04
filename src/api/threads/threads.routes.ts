@@ -128,11 +128,17 @@ router.get("/", controller.getThreads);
  *         content:
  *           application/json:
  *             schema:
+ *               $ref: "#/components/schemas/Thread"
+ *       404:
+ *         description: The board or author could not be found
+ *         content:
+ *           application/json:
+ *             schema:
  *               type: object
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Thread created successfully
+ *                   example: Could not find board or author
  */
 router.post("/", controller.createThread);
 
