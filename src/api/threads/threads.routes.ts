@@ -162,8 +162,16 @@ router.post("/", controller.createThread);
  *           application/json:
  *             schema:
  *               $ref: "#/components/schemas/Thread"
- *       400:
+ *       404:
  *         description: Thread connot be found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Thread not found
  */
 router.get("/:id", controller.getThreadById);
 

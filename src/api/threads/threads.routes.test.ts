@@ -124,10 +124,68 @@ describe("Test the routes at /threads", () => {
   });
 
   describe("the endpoint /threads/{id}", () => {
-    it("should respond to GET requests by returning 200 and a confirmation message", async () => {
-      const response: request.Response = await request(app).get("/threads/123");
-      expect(response.statusCode).toBe(200);
-      expect(response.body).toEqual(responseMessage);
+    describe("for GET requests", () => {
+      it("should respond with 200 and a thread object", async () => {
+        const username = "getThread";
+        const email = "getThread@example.com";
+        const authorId = await testHelpers.generateUserId(
+          username,
+          email,
+          "password123!",
+        );
+
+        const boardCategoryTopic = "getThreadCategory";
+        const boardCategoryId = await testHelpers.generateCategoryId(
+          boardCategoryTopic,
+        );
+
+        const boardTopic = "boardTopic";
+        const boardId = await testHelpers.generateBoardId(
+          boardTopic,
+          "Description",
+          boardCategoryId,
+        );
+
+        const threadTopic = "getThreadById Test";
+        const threadId = await testHelpers.generateThreadId(
+          authorId,
+          boardId,
+          threadTopic,
+        );
+
+        const response: request.Response = await request(app).get(
+          `/threads/${threadId}`,
+        );
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toEqual({
+          thread: {
+            __v: expect.any(Number),
+            _id: threadId,
+            author: {
+              authorId,
+              email,
+              username,
+            },
+            board: {
+              boardId,
+              topic: boardTopic,
+            },
+            dateCreated: expect.any(String),
+            id: expect.any(String),
+            lastPost: null,
+            posts: expect.any(Array),
+            topic: threadTopic,
+          },
+        });
+      });
+
+      it("should respond with 404 and an error message if the thread cannot be found", async () => {
+        const response: request.Response = await request(app).get(
+          "/threads/123456789012",
+        );
+        expect(response.statusCode).toBe(404);
+        expect(response.body).toEqual(responseMessage);
+      });
     });
 
     it("should respond to PATCH requests by returning 200 and a confirmation message", async () => {
