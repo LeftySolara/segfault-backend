@@ -5,12 +5,22 @@ import HttpError from "../../utils/httpError";
 import ThreadService from "../../services/thread";
 
 /**
- * Fetch all threads
+ * Get all threads from the database
  *
- * @returns Status code 200 and a confirmation message
+ * @returns On success, returns status code 200 and an array of thread objects
  */
-const getThreads = (req: Request, res: Response, next: Function) => {
-  return res.status(200).json({ message: "Fetching threads..." });
+const getThreads = async (req: Request, res: Response, next: Function) => {
+  let threads;
+
+  try {
+    threads = await ThreadService.getAll();
+  } catch (err: unknown) {
+    if (err instanceof HttpError) {
+      return res.status(err.code).json({ message: err.message });
+    }
+  }
+
+  return res.status(200).json({ threads });
 };
 
 /**

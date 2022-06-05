@@ -14,15 +14,76 @@ describe("The threads controller", () => {
   testHelpers.controllerTestInit();
 
   describe("getThreads", () => {
-    it("should return 200 and a confirmation message", () => {
-      controller.getThreads(
+    it("should return 200 and an array of thread objects", async () => {
+      // Create a thread to fetch
+      const username = "getThreads";
+      const email = "getThreads@example.com";
+      const authorId = await testHelpers.generateUserId(
+        username,
+        email,
+        "password123!",
+      );
+
+      const boardCategoryId = await testHelpers.generateCategoryId(
+        "getThreads Category",
+      );
+      const boardTopic = "getThreads Board";
+      const boardId = await testHelpers.generateBoardId(
+        boardTopic,
+        "description",
+        boardCategoryId,
+      );
+
+      const threadTopic = "getThreads Thread";
+      const req = {
+        body: {
+          authorId,
+          boardId,
+          topic: threadTopic,
+        },
+      } as unknown;
+
+      await controller.createThread(
         req as Request,
         mockResponse as Response,
         jest.fn(),
       );
-      const mRes = mockResponse as Response;
+
+      const mResponse = {
+        json: jest.fn(),
+        status: jest.fn().mockReturnThis(),
+      } as unknown;
+
+      await controller.getThreads(
+        req as Request,
+        mResponse as Response,
+        jest.fn(),
+      );
+
+      const mRes = mResponse as Response;
       expect(mRes.status).toBeCalledWith(200);
-      expect(mRes.json).toBeCalledWith({ message: expect.any(String) });
+      expect((mRes.json as any).mock.calls[0][0]).toEqual({
+        threads: [
+          {
+            __v: expect.any(Number),
+            _id: expect.any(mongoose.Types.ObjectId),
+            author: {
+              username,
+              email,
+              authorId: new mongoose.Types.ObjectId(authorId),
+            },
+            board: {
+              boardId: new mongoose.Types.ObjectId(boardId),
+              topic: boardTopic,
+            },
+            dateCreated: expect.any(Date),
+            id: expect.any(String),
+            lastPost: null,
+            posts: expect.any(Array),
+            topic: threadTopic,
+          },
+        ],
+      });
     });
   });
 
