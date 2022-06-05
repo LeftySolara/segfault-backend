@@ -7,6 +7,25 @@ import UserModel from "../models/user";
 import HttpError from "../utils/httpError";
 
 /**
+ * Get a list of all threads
+ *
+ * @throws after a database error
+ *
+ * @returns An array of thread objects
+ */
+const getAll = async () => {
+  let threads;
+
+  try {
+    threads = await ThreadModel.find({});
+  } catch (err: unknown) {
+    throw new HttpError("Error fetching threads", 500);
+  }
+
+  return threads.map((thread) => thread.toObject({ getters: true }));
+};
+
+/**
  * Create a new thread and add it to the database
  *
  * @param {string} authorId - The id of the user creating the thread
@@ -79,4 +98,4 @@ const create = async (authorId: string, boardId: string, topic: string) => {
   return thread.toObject({ getters: true });
 };
 
-export default { create };
+export default { getAll, create };

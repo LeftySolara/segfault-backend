@@ -6,6 +6,52 @@ import testHelpers from "../utils/testHelpers";
 describe("The Thread service", () => {
   testHelpers.serviceTestInit();
 
+  describe("getAll", () => {
+    it("should return a list of thread objects", async () => {
+      const username = "getAll";
+      const email = "getAll@example.com";
+      const authorId = await testHelpers.generateUserId(
+        username,
+        email,
+        "password123!",
+      );
+
+      const boardCategoryId = await testHelpers.generateCategoryId("getAll");
+
+      const topic = "getAll Test";
+      const boardId = await testHelpers.generateBoardId(
+        topic,
+        "Get all threads",
+        boardCategoryId,
+      );
+
+      await ThreadService.create(authorId, boardId, topic);
+
+      const threads = await ThreadService.getAll();
+
+      expect(threads).toEqual([
+        {
+          __v: expect.any(Number),
+          _id: expect.any(mongoose.Types.ObjectId),
+          author: {
+            authorId: new mongoose.Types.ObjectId(authorId),
+            username,
+            email,
+          },
+          board: {
+            boardId: new mongoose.Types.ObjectId(boardId),
+            topic,
+          },
+          dateCreated: expect.any(Date),
+          id: expect.any(String),
+          lastPost: null,
+          posts: expect.any(Array),
+          topic,
+        },
+      ]);
+    });
+  });
+
   describe("create", () => {
     it("should return an object containing thread information", async () => {
       const username = "createThread";
