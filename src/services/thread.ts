@@ -52,6 +52,39 @@ const getById = async (id: string) => {
 };
 
 /**
+ * Fetch all of a user's threads
+ *
+ * @param {string} id The id of the user
+ *
+ * @throws 500 after a database error
+ * @throws 404 if the user cannot be found
+ *
+ * @returns An array of thread objects
+ */
+const getByUser = async (id: string) => {
+  // Verify the user exists
+  let user;
+  try {
+    user = await UserModel.findById(id);
+  } catch (err: unknown) {
+    throw new HttpError("Error fetching threads from user", 500);
+  }
+  if (!user) {
+    throw new HttpError("Could not find user", 404);
+  }
+
+  // Find the threads
+  let threads;
+  try {
+    threads = await ThreadModel.find({ author: id });
+  } catch (err: unknown) {
+    throw new HttpError("Error fetching threads from user", 500);
+  }
+
+  return threads.map((thread) => thread.toObject({ getters: true }));
+};
+
+/**
  * Create a new thread and add it to the database
  *
  * @param {string} authorId - The id of the user creating the thread
@@ -124,4 +157,4 @@ const create = async (authorId: string, boardId: string, topic: string) => {
   return thread.toObject({ getters: true });
 };
 
-export default { getAll, getById, create };
+export default { getAll, getById, getByUser, create };

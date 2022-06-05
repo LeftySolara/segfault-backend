@@ -107,6 +107,14 @@ describe("The Thread service", () => {
     });
   });
 
+  describe("getByUser", () => {
+    it("should return an array of thread objects", () => {});
+
+    it("should return an empty array if the user has no threads", () => {});
+
+    it("should throw an error if the user cannot be found", () => {});
+  });
+
   describe("create", () => {
     it("should return an object containing thread information", async () => {
       const username = "createThread";
