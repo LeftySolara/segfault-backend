@@ -26,10 +26,23 @@ const getThreads = async (req: Request, res: Response, next: Function) => {
 /**
  * Fetch a thread by its ID
  *
- * @returns Status code 200 and a confirmation message
+ * @param {string} req.params.id The id of the thread to fetch
+ *
+ * @returns On success, returns 200 and a thread object
  */
-const getThreadById = (req: Request, res: Response, next: Function) => {
-  return res.status(200).json({ message: "Fetching thread..." });
+const getThreadById = async (req: Request, res: Response, next: Function) => {
+  const { id } = req.params;
+  let thread;
+
+  try {
+    thread = await ThreadService.getById(id);
+  } catch (err: unknown) {
+    if (err instanceof HttpError) {
+      return res.status(err.code).json({ message: err.message });
+    }
+  }
+
+  return res.status(200).json({ thread });
 };
 
 /**

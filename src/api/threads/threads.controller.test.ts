@@ -88,14 +88,95 @@ describe("The threads controller", () => {
   });
 
   describe("getThreadById", () => {
-    it("should return 200 and a confirmation message", () => {
-      controller.getThreadById(
+    it("should return 200 and a thread object", async () => {
+      const username = "getThread";
+      const email = "getThread@example.com";
+      const authorId = await testHelpers.generateUserId(
+        username,
+        email,
+        "password123!",
+      );
+
+      const boardCategoryTopic = "getThreadCategory";
+      const boardCategoryId = await testHelpers.generateCategoryId(
+        boardCategoryTopic,
+      );
+
+      const boardTopic = "boardTopic";
+      const boardId = await testHelpers.generateBoardId(
+        boardTopic,
+        "Description",
+        boardCategoryId,
+      );
+
+      const threadTopic = "getThreadById Test";
+      const threadId = await testHelpers.generateThreadId(
+        authorId,
+        boardId,
+        threadTopic,
+      );
+
+      const mResponse = {
+        json: jest.fn(),
+        status: jest.fn().mockReturnThis(),
+      } as unknown;
+
+      const req = {
+        params: {
+          id: threadId,
+        },
+      } as unknown;
+
+      await controller.getThreadById(
         req as Request,
-        mockResponse as Response,
+        mResponse as Response,
         jest.fn(),
       );
-      const mRes = mockResponse as Response;
+
+      const mRes = mResponse as Response;
       expect(mRes.status).toBeCalledWith(200);
+      expect((mRes.json as any).mock.calls[0][0]).toEqual({
+        thread: {
+          __v: expect.any(Number),
+          _id: new mongoose.Types.ObjectId(threadId),
+          author: {
+            authorId: new mongoose.Types.ObjectId(authorId),
+            email,
+            username,
+          },
+          board: {
+            boardId: new mongoose.Types.ObjectId(boardId),
+            topic: boardTopic,
+          },
+          dateCreated: expect.any(Date),
+          id: expect.any(String),
+          lastPost: null,
+          posts: expect.any(Array),
+          topic: threadTopic,
+        },
+      });
+    });
+
+    it("should return 404 and an error message if the thread cannot be found", async () => {
+      const req = {
+        params: {
+          id: "123456789012",
+        },
+      } as unknown;
+
+      const mResponse = {
+        json: jest.fn(),
+        status: jest.fn().mockReturnThis(),
+      } as unknown;
+
+      await controller.getThreadById(
+        req as Request,
+        mResponse as Response,
+        jest.fn(),
+      );
+
+      const mRes = mResponse as Response;
+      expect(mRes.status).toBeCalledWith(404);
       expect(mRes.json).toBeCalledWith({ message: expect.any(String) });
     });
   });

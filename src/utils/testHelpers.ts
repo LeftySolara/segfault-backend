@@ -5,6 +5,7 @@ import expressLoader from "../loaders/express";
 
 import BoardCategoryService from "../services/boardCategory";
 import BoardService from "../services/board";
+import ThreadService from "../services/thread";
 import UserService from "../services/user";
 
 let replset: MongoMemoryReplSet;
@@ -117,6 +118,25 @@ const generateBoardId = async (
 };
 
 /**
+ * Create a new thread and return its id
+ *
+ * @param {string} authorId - The id of the thread's author
+ * @param {string} boardId - The id of the board that the thread belongs to
+ * @param {string} topic - The topic of the thread
+ *
+ * @returns The id of the created thread
+ */
+const generateThreadId = async (
+  authorId: string,
+  boardId: string,
+  topic: string,
+) => {
+  const threadObj: any = await ThreadService.create(authorId, boardId, topic);
+
+  return threadObj.id;
+};
+
+/**
  * Create a new user and return its id
  *
  * @param {string} username The user's username
@@ -140,5 +160,6 @@ export default {
   serviceTestInit,
   generateCategoryId,
   generateBoardId,
+  generateThreadId,
   generateUserId,
 };
