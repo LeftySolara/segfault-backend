@@ -52,6 +52,61 @@ describe("The Thread service", () => {
     });
   });
 
+  describe("getById", () => {
+    // Create a thread to fetch
+    it("should return a thread object", async () => {
+      const username = "getThread";
+      const email = "getThread@example.com";
+      const authorId = await testHelpers.generateUserId(
+        username,
+        email,
+        "password123!",
+      );
+
+      const boardCategoryId = await testHelpers.generateCategoryId("getThread");
+
+      const boardTopic = "Thread fetch test";
+      const boardId = await testHelpers.generateBoardId(
+        boardTopic,
+        "A test of thread fetching",
+        boardCategoryId,
+      );
+
+      const threadTopic = "Testing getById";
+      const thread: any = await ThreadService.create(
+        authorId,
+        boardId,
+        threadTopic,
+      );
+
+      const fetchedThread = await ThreadService.getById(thread.id);
+      expect(fetchedThread).toEqual({
+        __v: expect.any(Number),
+        _id: thread._id,
+        author: {
+          authorId: new mongoose.Types.ObjectId(authorId),
+          email,
+          username,
+        },
+        board: {
+          boardId: new mongoose.Types.ObjectId(boardId),
+          topic: boardTopic,
+        },
+        id: thread.id,
+        dateCreated: thread.dateCreated,
+        lastPost: null,
+        posts: expect.any(Array),
+        topic: threadTopic,
+      });
+    });
+
+    it("should throw an error if the thread cannot be found", () => {
+      expect(async () =>
+        ThreadService.getById("123456789012"),
+      ).rejects.toThrow();
+    });
+  });
+
   describe("create", () => {
     it("should return an object containing thread information", async () => {
       const username = "createThread";
