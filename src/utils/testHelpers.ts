@@ -154,6 +154,55 @@ const generateUserId = async (
   return userObj.userId;
 };
 
+/**
+ * Generate a thread to be used for tests
+ *
+ * @returns An object containing thread information
+ */
+const generateThread = async () => {
+  const username = "generatedThreadAuthor";
+  const email = "generatedThreadAuthor@example.com";
+  const password = "password123!";
+  const user: any = await UserService.create(username, email, password);
+
+  const boardCategoryTopic = "generatedCategory";
+  const boardCategory: any = await BoardCategoryService.create(
+    boardCategoryTopic,
+    1,
+  );
+
+  const boardTopic = "generatedBoard";
+  const boardDescription = "A generated board";
+  const board: any = await BoardService.create(
+    boardTopic,
+    boardDescription,
+    boardCategory.id,
+  );
+
+  const threadTopic = "A generated thread topic";
+  const thread: any = await ThreadService.create(
+    user.userId,
+    board.id,
+    threadTopic,
+  );
+
+  return thread;
+};
+
+/**
+ * Generate a user to be used for tests
+ *
+ * @returns An object containing user information
+ */
+const generateUser = async () => {
+  const username = "generatedUser";
+  const email = "generatedUser@example.com";
+  const password = "password123!";
+  const user: any = UserService.create(username, email, password);
+
+  return user;
+};
+
 export default {
   routeTestInit,
   controllerTestInit,
@@ -162,4 +211,6 @@ export default {
   generateBoardId,
   generateThreadId,
   generateUserId,
+  generateThread,
+  generateUser,
 };

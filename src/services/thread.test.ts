@@ -108,11 +108,26 @@ describe("The Thread service", () => {
   });
 
   describe("getByUser", () => {
-    it("should return an array of thread objects", () => {});
+    it("should return an array of thread objects", async () => {
+      const thread = await testHelpers.generateThread();
+      const userThreads = await ThreadService.getByUser(
+        thread.author.authorId.toString(),
+      );
 
-    it("should return an empty array if the user has no threads", () => {});
+      expect(userThreads).toEqual([thread]);
+    });
 
-    it("should throw an error if the user cannot be found", () => {});
+    it("should return an empty array if the user has no threads", async () => {
+      const user = await testHelpers.generateUser();
+      const userThreads = await ThreadService.getByUser(user.userId);
+      expect(userThreads).toEqual([]);
+    });
+
+    it("should throw an error if the user cannot be found", () => {
+      expect(
+        async () => await ThreadService.getByUser("123456789012"),
+      ).rejects.toThrow();
+    });
   });
 
   describe("create", () => {

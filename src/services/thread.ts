@@ -76,7 +76,7 @@ const getByUser = async (id: string) => {
   // Find the threads
   let threads;
   try {
-    threads = await ThreadModel.find({ author: id });
+    threads = await ThreadModel.find({ "author.authorId": id });
   } catch (err: unknown) {
     throw new HttpError("Error fetching threads from user", 500);
   }
