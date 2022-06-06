@@ -1,4 +1,5 @@
 import express from "express";
+import { check } from "express-validator";
 import controller from "./threads.controller";
 
 /**
@@ -195,14 +196,30 @@ router.get("/:id", controller.getThreadById);
  *         content:
  *           application/json:
  *             schema:
+ *               $ref: "#/components/schemas/Thread"
+ *       404:
+ *         description: The thread was not found
+ *         content:
+ *           application/json:
+ *             schema:
  *               type: object
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Thread updated successfully
+ *                   example: Thread not found
+ *     requestBody:
+ *       description: A JSON-formatted object containing thread information
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               topic:
+ *                 type: string
+ *                 description: The new topic of the thread
  */
-// TODO: document request body
-router.patch("/:id", controller.updateThread);
+router.patch("/:id", [check("topic").not().isEmpty()], controller.updateThread);
 
 /**
  * @swagger

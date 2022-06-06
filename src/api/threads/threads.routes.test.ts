@@ -188,12 +188,39 @@ describe("Test the routes at /threads", () => {
       });
     });
 
-    it("should respond to PATCH requests by returning 200 and a confirmation message", async () => {
-      const response: request.Response = await request(app).patch(
-        "/threads/123",
-      );
-      expect(response.statusCode).toBe(200);
-      expect(response.body).toEqual(responseMessage);
+    describe("for PATCH requests", () => {
+      it("should return 200 and an updated thread object", async () => {
+        const thread = await testHelpers.generateThread();
+        const newTopic = "New Topic";
+
+        const response: request.Response = await request(app)
+          .patch(`/threads/${thread.id}`)
+          .send({ topic: newTopic });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toMatchObject({
+          thread: {
+            __v: thread.__v,
+            _id: thread._id,
+            author: thread.author,
+            board: thread.board,
+            dateCreated: expect.any(String),
+            lastPost: thread.lastPost,
+            posts: thread.posts,
+            topic: newTopic,
+            id: thread.id,
+          },
+        });
+      });
+
+      it("should return 404 and an error message if the thread is not found", async () => {
+        const response: request.Response = await request(app)
+          .patch("/threads/123456789012")
+          .send({ topic: "New Topic" });
+
+        expect(response.statusCode).toBe(404);
+        expect(response.body).toEqual(responseMessage);
+      });
     });
 
     it("should respond to DELETE requests by returning 200 and a confirmation message", async () => {
