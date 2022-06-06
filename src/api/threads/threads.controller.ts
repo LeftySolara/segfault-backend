@@ -72,12 +72,32 @@ const getThreadsByUser = async (
 };
 
 /**
- * Update a thread's info
+ * Update a thread's information
  *
- * @returns Status code 200 and a confirmation message
+ * @param {string} req.params.id - The id of the thread to update
+ * @param {string} req.body.topic - The new topic to assign to the thread
+ *
+ * @returns On success, returns 200 and an updated thread object
  */
-const updateThread = (req: Request, res: Response, next: Function) => {
-  return res.status(200).json({ message: "Updating thread..." });
+const updateThread = async (req: Request, res: Response, next: Function) => {
+  const validationError = validateRequestInputs(req);
+  if (validationError) {
+    return next(validationError);
+  }
+
+  const { id } = req.params;
+  const { topic } = req.body;
+
+  let thread;
+  try {
+    thread = await ThreadService.update(id, topic);
+  } catch (err: unknown) {
+    if (err instanceof HttpError) {
+      return res.status(err.code).json({ message: err.message });
+    }
+  }
+
+  return res.status(200).json({ thread });
 };
 
 /**

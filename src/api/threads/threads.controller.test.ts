@@ -257,14 +257,70 @@ describe("The threads controller", () => {
   });
 
   describe("updateThread", () => {
-    it("should return 200 and a confirmation message", () => {
-      controller.updateThread(
+    it("should return 200 and an updated thread object", async () => {
+      const thread = await testHelpers.generateThread();
+      const newTopic = "New Topic";
+
+      const req = {
+        params: {
+          id: thread.id,
+        },
+        body: {
+          topic: newTopic,
+        },
+      } as unknown;
+
+      const mockResponse = {
+        json: jest.fn(),
+        status: jest.fn().mockReturnThis(),
+      } as unknown;
+
+      await controller.updateThread(
         req as Request,
         mockResponse as Response,
         jest.fn(),
       );
+
       const mRes = mockResponse as Response;
       expect(mRes.status).toBeCalledWith(200);
+      expect(mRes.json).toBeCalledWith({
+        thread: {
+          __v: thread.__v,
+          _id: thread._id,
+          author: thread.author,
+          board: thread.board,
+          dateCreated: thread.dateCreated,
+          id: thread.id,
+          lastPost: thread.lastPost,
+          posts: thread.posts,
+          topic: newTopic,
+        },
+      });
+    });
+
+    it("should return 404 and an error message if the thread cannot be found", async () => {
+      const req = {
+        params: {
+          id: "123456789012",
+        },
+        body: {
+          topic: "New Topic",
+        },
+      } as unknown;
+
+      const mockResponse = {
+        json: jest.fn(),
+        status: jest.fn().mockReturnThis(),
+      } as unknown;
+
+      await controller.updateThread(
+        req as Request,
+        mockResponse as Response,
+        jest.fn(),
+      );
+
+      const mRes = mockResponse as Response;
+      expect(mRes.status).toBeCalledWith(404);
       expect(mRes.json).toBeCalledWith({ message: expect.any(String) });
     });
   });
