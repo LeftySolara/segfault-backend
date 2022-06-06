@@ -224,4 +224,42 @@ router.patch("/:id", controller.updateThread);
  */
 router.delete("/:id", controller.deleteThread);
 
+/**
+ * @swagger
+ * /threads/user/{id}:
+ *   get:
+ *     summary: Fetch all threads created by a specific user
+ *     tags: [Threads]
+ *     parameters:
+ *       - in : path
+ *         name: id
+ *         description: The id of the user to search for
+ *         schema:
+ *           type: string
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: A list of the user's threads
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 threads:
+ *                   type: array
+ *                   items:
+ *                     $ref: "#/components/schemas/Thread"
+ *       404:
+ *         description: The user was not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User not found
+ */
+router.get("/user/:id", controller.getThreadsByUser);
+
 export default router;

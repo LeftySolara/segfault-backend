@@ -204,4 +204,38 @@ describe("Test the routes at /threads", () => {
       expect(response.body).toEqual(responseMessage);
     });
   });
+
+  describe("the endpoint /threads/user/{id}", () => {
+    describe("for GET requests", () => {
+      it("should respond with 200 and an array of thread objects", async () => {
+        const thread = await testHelpers.generateThread();
+
+        const response: request.Response = await request(app).get(
+          `/threads/user/${thread.author.authorId.toString()}`,
+        );
+        thread.dateCreated = expect.any(String);
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toMatchObject({ threads: [thread] });
+      });
+
+      it("should respond with 200 and an empty array if the user has no threads", async () => {
+        const user = await testHelpers.generateUser();
+
+        const response: request.Response = await request(app).get(
+          `/threads/user/${user.userId}`,
+        );
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toEqual({ threads: [] });
+      });
+
+      it("should return 404 and an error message if the user is not found", async () => {
+        const response: request.Response = await request(app).get(
+          "/threads/user/123456789012",
+        );
+
+        expect(response.statusCode).toBe(404);
+        expect(response.body).toEqual(responseMessage);
+      });
+    });
+  });
 });
