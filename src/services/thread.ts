@@ -85,6 +85,38 @@ const getByUser = async (id: string) => {
 };
 
 /**
+ * Update a thread's information
+ *
+ * @param {string} id - The id of the thread to update
+ * @param {string} topic - The new topic to assign to the thread
+ *
+ * @throws after a database error
+ * @throws if the thread is not found
+ *
+ * @returns A thread object with updated information
+ */
+const update = async (id: string, topic: string) => {
+  let thread;
+  try {
+    thread = await ThreadModel.findById(id);
+  } catch (err: unknown) {
+    throw new HttpError("Unable to fetch thread", 500);
+  }
+  if (!thread) {
+    throw new HttpError("Thread not found", 404);
+  }
+
+  try {
+    thread.topic = topic;
+    await thread.save();
+  } catch (err: unknown) {
+    throw new HttpError("Unable to update thread", 500);
+  }
+
+  return thread.toObject({ getters: true });
+};
+
+/**
  * Create a new thread and add it to the database
  *
  * @param {string} authorId - The id of the user creating the thread
@@ -157,4 +189,4 @@ const create = async (authorId: string, boardId: string, topic: string) => {
   return thread.toObject({ getters: true });
 };
 
-export default { getAll, getById, getByUser, create };
+export default { getAll, getById, getByUser, update, create };

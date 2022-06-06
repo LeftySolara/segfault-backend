@@ -130,6 +130,33 @@ describe("The Thread service", () => {
     });
   });
 
+  describe("update", () => {
+    it("should return a thread object with updated information", async () => {
+      const thread = await testHelpers.generateThread();
+
+      const newTopic = "New Topic";
+      const updatedThread = await ThreadService.update(thread.id, newTopic);
+
+      expect(updatedThread).toEqual({
+        __v: thread.__v,
+        _id: thread._id,
+        author: thread.author,
+        board: thread.board,
+        dateCreated: thread.dateCreated,
+        id: thread.id,
+        lastPost: thread.lastPost,
+        posts: thread.posts,
+        topic: newTopic,
+      });
+    });
+
+    it("should throw an error if the thread is not found", () => {
+      expect(
+        async () => await ThreadService.update("123456789012", "New Topic"),
+      ).rejects.toThrow();
+    });
+  });
+
   describe("create", () => {
     it("should return an object containing thread information", async () => {
       const username = "createThread";
