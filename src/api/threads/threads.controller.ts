@@ -46,6 +46,32 @@ const getThreadById = async (req: Request, res: Response, next: Function) => {
 };
 
 /**
+ * Fetch all threads created by a specific user
+ *
+ * @param {string} req.params.id - The id of the user
+ *
+ * @returns An array of thread objects
+ */
+const getThreadsByUser = async (
+  req: Request,
+  res: Response,
+  next: Function,
+) => {
+  const { id } = req.params;
+
+  let threads;
+  try {
+    threads = await ThreadService.getByUser(id);
+  } catch (err: unknown) {
+    if (err instanceof HttpError) {
+      return res.status(err.code).json({ message: err.message });
+    }
+  }
+
+  return res.status(200).json({ threads });
+};
+
+/**
  * Update a thread's info
  *
  * @returns Status code 200 and a confirmation message
@@ -93,6 +119,7 @@ const deleteThread = (req: Request, res: Response, next: Function) => {
 export default {
   getThreads,
   getThreadById,
+  getThreadsByUser,
   updateThread,
   createThread,
   deleteThread,
