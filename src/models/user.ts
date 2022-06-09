@@ -1,18 +1,20 @@
-import { Schema, Types, model } from "mongoose";
+import { Schema, Types, model, Model } from "mongoose";
 import uniqueValidator from "mongoose-unique-validator";
 import bcrypt from "bcrypt";
 import loggerService from "../services/logger";
 
-interface IUser {
+interface User {
   username: string;
   email: string;
   password: string;
   joinDate: Date;
-  posts: Types.ObjectId[];
-  threads: Types.ObjectId[];
+  posts: Types.Array<Types.ObjectId>;
+  threads: Types.Array<Types.ObjectId>;
 }
 
-const userSchema: Schema = new Schema<IUser>({
+type UserModelType = Model<User, {}, {}>;
+
+const userSchema: Schema = new Schema<User, UserModelType>({
   username: {
     type: String,
     required: true,
@@ -59,4 +61,6 @@ userSchema.methods.comparePassword = async function (password: string) {
 
 userSchema.plugin(uniqueValidator);
 
-export default model<IUser>("User", userSchema);
+const UserModel = model<User, UserModelType>("User", userSchema);
+
+export default UserModel;

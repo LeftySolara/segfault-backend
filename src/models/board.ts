@@ -1,35 +1,40 @@
-import { Schema, Types, model } from "mongoose";
+import { Schema, Types, model, Model } from "mongoose";
 
 interface Category {
-  id: Types.ObjectId;
+  categoryId: Types.ObjectId;
   topic: string;
 }
 
-interface IBoard {
+interface Board {
   topic: string;
   description: string;
   category: Category;
-  threads: Types.ObjectId[];
+  threads: Types.Array<Types.ObjectId>;
 }
 
-const boardSchema: Schema = new Schema<IBoard>({
+type BoardDocumentOverrides = {
+  category: Types.Subdocument<Types.ObjectId> & Category;
+};
+
+type BoardModelType = Model<Board, {}, BoardDocumentOverrides>;
+
+const boardSchema = new Schema<Board, BoardModelType>({
   topic: { type: String, required: true },
   description: { type: String, required: true },
-  category: {
-    id: {
-      type: Schema.Types.ObjectId,
-      required: true,
-      ref: "BoardCategory",
-    },
-    topic: { type: String, required: true },
-  },
-  threads: [
+  threads: [{ type: Schema.Types.ObjectId, required: true, ref: "Thread" }],
+  category: new Schema<Category>(
     {
-      type: Schema.Types.ObjectId,
-      required: true,
-      ref: "Thread",
+      topic: { type: String, required: true },
+      categoryId: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: "BoardCategory",
+      },
     },
-  ],
+    { _id: false },
+  ),
 });
 
-export default model<IBoard>("Board", boardSchema);
+const BoardModel = model<Board, BoardModelType>("Board", boardSchema);
+
+export { BoardModel as default, Category };
