@@ -25,7 +25,11 @@ const boardSchema = new Schema<Board, BoardModelType>({
   category: new Schema<Category>(
     {
       topic: { type: String, required: true },
-      categoryId: { type: Schema.Types.ObjectId, required: true },
+      categoryId: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: "BoardCategory",
+      },
     },
     { _id: false },
   ),
