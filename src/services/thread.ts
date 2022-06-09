@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 import ThreadModel from "../models/thread";
 import BoardModel from "../models/board";
+import PostModel from "../models/post";
 import UserModel from "../models/user";
 
 import HttpError from "../utils/httpError";
@@ -189,4 +190,60 @@ const create = async (authorId: string, boardId: string, topic: string) => {
   return thread.toObject({ getters: true });
 };
 
-export default { getAll, getById, getByUser, update, create };
+/**
+ * Delete a thread from the database
+ *
+ * @throws after a database error
+ * @throws if the thread cannot be found
+ * @throws if the author cannot be found
+ * @throws if the board cannot be found
+ *
+ * @param {string} id The id of the thread to delete
+ */
+const del = async (id: string) => {
+  let thread;
+  try {
+    thread = await ThreadModel.findById(id);
+  } catch (err: unknown) {
+    throw new HttpError("Error deleting thread", 500);
+  }
+  if (!thread) {
+    throw new HttpError("Cannot find thread", 404);
+  }
+
+  const threadObj = thread.toObject({ getters: true });
+  try {
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+
+    // Remove the thread from its board
+    const board = await BoardModel.findById(thread.board.boardId);
+    if (!board) {
+      throw new HttpError("Cannot find board", 404);
+    }
+    board.threads.pull(thread);
+
+    // Remove the thread from the author
+    const author = await UserModel.findById(thread.author.authorId);
+    if (!author) {
+      throw new HttpError("Cannot find user", 404);
+    }
+    author.threads.pull(thread);
+
+    // Delete all of the thread's posts
+    thread.posts.forEach(async (post) => {
+      author.posts.pull(post);
+      PostModel.findByIdAndDelete(post._id);
+    });
+
+    await ThreadModel.findByIdAndDelete(id);
+
+    sess.commitTransaction();
+  } catch (err: unknown) {
+    throw new HttpError("Unable to delete thread", 500);
+  }
+
+  return threadObj;
+};
+
+export default { getAll, getById, getByUser, update, create, del };
