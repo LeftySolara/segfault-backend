@@ -32,4 +32,4 @@ const postSchema: Schema = new Schema<IPost>({
   content: { type: String, required: true },
 });
 
-module.exports = model<IPost>("Post", postSchema);
+export default model<IPost>("Post", postSchema);
