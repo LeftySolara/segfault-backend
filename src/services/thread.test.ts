@@ -8,96 +8,24 @@ describe("The Thread service", () => {
 
   describe("getAll", () => {
     it("should return a list of thread objects", async () => {
-      const username = "getAll";
-      const email = "getAll@example.com";
-      const authorId = await testHelpers.generateUserId(
-        username,
-        email,
-        "password123!",
-      );
-
-      const boardCategoryId = await testHelpers.generateCategoryId("getAll");
-
-      const topic = "getAll Test";
-      const boardId = await testHelpers.generateBoardId(
-        topic,
-        "Get all threads",
-        boardCategoryId,
-      );
-
-      await ThreadService.create(authorId, boardId, topic);
-
+      const thread = await testHelpers.generateThread();
       const threads = await ThreadService.getAll();
 
-      expect(threads).toEqual([
-        {
-          __v: expect.any(Number),
-          _id: expect.any(mongoose.Types.ObjectId),
-          author: {
-            authorId: new mongoose.Types.ObjectId(authorId),
-            username,
-            email,
-          },
-          board: {
-            boardId: new mongoose.Types.ObjectId(boardId),
-            topic,
-          },
-          dateCreated: expect.any(Date),
-          id: expect.any(String),
-          lastPost: null,
-          posts: expect.any(Array),
-          topic,
-        },
-      ]);
+      expect(threads).toEqual([thread]);
+    });
+
+    it("should return an empty array if there are no threads", async () => {
+      const threads = await ThreadService.getAll();
+      expect(threads).toEqual([]);
     });
   });
 
   describe("getById", () => {
-    // Create a thread to fetch
     it("should return a thread object", async () => {
-      const username = "getThread";
-      const email = "getThread@example.com";
-      const authorId = await testHelpers.generateUserId(
-        username,
-        email,
-        "password123!",
-      );
-
-      const boardCategoryId = await testHelpers.generateCategoryId("getThread");
-
-      const boardTopic = "Thread fetch test";
-      const boardId = await testHelpers.generateBoardId(
-        boardTopic,
-        "A test of thread fetching",
-        boardCategoryId,
-      );
-
-      const threadTopic = "Testing getById";
-      const thread: any = await ThreadService.create(
-        authorId,
-        boardId,
-        threadTopic,
-      );
-
+      const thread = await testHelpers.generateThread();
       const fetchedThread = await ThreadService.getById(thread.id);
-      expect(fetchedThread).toEqual({
-        __v: expect.any(Number),
-        _id: thread._id,
-        author: {
-          authorId: new mongoose.Types.ObjectId(authorId),
-          email,
-          username,
-        },
-        board: {
-          boardId: new mongoose.Types.ObjectId(boardId),
-          topic: boardTopic,
-        },
-        id: thread.id,
-        dateCreated: thread.dateCreated,
-        lastPost: null,
-        posts: expect.any(Array),
-        topic: threadTopic,
-      });
+
+      expect(fetchedThread).toEqual(thread);
     });
 
     it("should throw an error if the thread cannot be found", () => {
@@ -159,39 +87,24 @@ describe("The Thread service", () => {
 
   describe("create", () => {
     it("should return an object containing thread information", async () => {
-      const username = "createThread";
-      const email = "createThread@example.com";
-      const authorId = await testHelpers.generateUserId(
-        "createThread",
-        "createThread@example.com",
-        "password123!",
-      );
-
-      const boardCategoryId = await testHelpers.generateCategoryId(
-        "createThread",
-      );
+      const author = await testHelpers.generateUser();
+      const board = await testHelpers.generateBoard();
 
       const topic = "Thread creation test";
-      const boardId = await testHelpers.generateBoardId(
-        topic,
-        "A test of thread creation",
-        boardCategoryId,
-      );
-
-      const thread = await ThreadService.create(authorId, boardId, topic);
+      const thread = await ThreadService.create(author.userId, board.id, topic);
 
       expect(thread).toEqual({
         __v: expect.any(Number),
         _id: expect.any(mongoose.Types.ObjectId),
         id: expect.any(String),
         author: {
-          authorId: new mongoose.Types.ObjectId(authorId),
-          email,
-          username,
+          authorId: new mongoose.Types.ObjectId(author.userId),
+          email: author.email,
+          username: author.username,
         },
         board: {
-          boardId: new mongoose.Types.ObjectId(boardId),
-          topic,
+          boardId: new mongoose.Types.ObjectId(board.id),
+          topic: board.topic,
         },
         dateCreated: expect.any(Date),
         posts: expect.any(Array),
@@ -201,37 +114,27 @@ describe("The Thread service", () => {
     });
 
     it("should throw an error if the board does not exist", async () => {
-      const username = "boardDoesNotExist";
-      const email = "boardDoesNotExist@example.com";
-      const authorId = await testHelpers.generateUserId(
-        username,
-        email,
-        "password123!",
-      );
-      const boardId = "123456789012";
+      const user = await testHelpers.generateUser();
 
       expect(
         async () =>
-          await ThreadService.create(authorId, boardId, "Board does not exist"),
+          await ThreadService.create(
+            user.userId,
+            "123456789012",
+            "Board does not exist",
+          ),
       ).rejects.toThrow();
     });
 
     it("should throw an error if the author does not exist", async () => {
       const authorId = "123456789012";
-      const boardCategoryId = await testHelpers.generateCategoryId(
-        "Author does not exist",
-      );
-      const boardId = await testHelpers.generateBoardId(
-        "Author does not exist",
-        "No author",
-        boardCategoryId,
-      );
+      const board = await testHelpers.generateBoard();
 
       expect(
         async () =>
           await ThreadService.create(
             authorId,
-            boardId,
+            board.id,
             "Author does not exist",
           ),
       ).rejects.toThrow();

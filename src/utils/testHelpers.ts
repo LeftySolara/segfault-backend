@@ -209,7 +209,7 @@ const generateUser = async () => {
  * @returns A BoardCategory object
  */
 const generateBoardCategory = async () => {
-  const category = await BoardCategoryService.create("TestCategory", 0);
+  const category: any = await BoardCategoryService.create("TestCategory", 0);
   return category;
 };
 
@@ -221,7 +221,7 @@ const generateBoardCategory = async () => {
 const generateBoard = async () => {
   const category = await BoardCategoryService.create("TestCategory", 0);
 
-  const board = await BoardService.create(
+  const board: any = await BoardService.create(
     "TestBoard",
     "TestBoard description",
     category.id,

@@ -28,15 +28,21 @@ type ThreadDocumentOverrides = {
 type ThreadModelType = Model<Thread, {}, ThreadDocumentOverrides>;
 
 const threadSchema = new Schema<Thread, ThreadModelType>({
-  author: new Schema<Author>({
-    authorId: { type: Schema.Types.ObjectId, required: true, ref: "User" },
-    username: { type: String, required: true },
-    email: { type: String, required: true },
-  }),
-  board: new Schema<Board>({
-    boardId: { type: Schema.Types.ObjectId, required: true, ref: "Board" },
-    topic: { type: String, required: true },
-  }),
+  author: new Schema<Author>(
+    {
+      authorId: { type: Schema.Types.ObjectId, required: true, ref: "User" },
+      username: { type: String, required: true },
+      email: { type: String, required: true },
+    },
+    { _id: false },
+  ),
+  board: new Schema<Board>(
+    {
+      boardId: { type: Schema.Types.ObjectId, required: true, ref: "Board" },
+      topic: { type: String, required: true },
+    },
+    { _id: false },
+  ),
   topic: { type: String, required: true },
   dateCreated: { type: Date, required: true, immutable: true },
   posts: [{ type: Schema.Types.ObjectId, required: true, ref: "Post" }],
