@@ -134,6 +134,33 @@ const generateUserId = async (
   return userObj.userId;
 };
 
+/**
+ * Create a test board category for use in tests
+ *
+ * @returns A BoardCategory object
+ */
+const generateBoardCategory = async () => {
+  const category = await BoardCategoryService.create("TestCategory", 0);
+  return category;
+};
+
+/**
+ * Create a board for use in tests
+ *
+ * @returns A Board object
+ */
+const generateBoard = async () => {
+  const category = await BoardCategoryService.create("TestCategory", 0);
+
+  const board = await BoardService.create(
+    "TestBoard",
+    "TestBoard description",
+    category.id,
+  );
+
+  return board;
+};
+
 export default {
   routeTestInit,
   controllerTestInit,
@@ -141,4 +168,6 @@ export default {
   generateCategoryId,
   generateBoardId,
   generateUserId,
+  generateBoardCategory,
+  generateBoard,
 };

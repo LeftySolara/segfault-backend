@@ -4,7 +4,7 @@ import BoardCategoryModel from "../models/boardCategory";
 import HttpError from "../utils/httpError";
 
 /**
- * Get all boards from the database
+ * Fetch a list containing all boards in the database
  *
  * @returns An array of board objects
  */
@@ -21,9 +21,9 @@ const getAll = async () => {
 };
 
 /**
- * Get a board from the database by its id
+ * Fetch a board from the database based on its id
  *
- * @param id The id of the board to fetch
+ * @param {string} id - The id of the board to fetch
  *
  * @returns An object containing board information
  */
@@ -33,10 +33,8 @@ const getById = async (id: string) => {
   try {
     board = await BoardModel.findById(id);
   } catch (err) {
-    console.log(err);
     throw new HttpError("Error searching for board", 500);
   }
-
   if (!board) {
     throw new HttpError("Board not found", 404);
   }
@@ -47,10 +45,10 @@ const getById = async (id: string) => {
 /**
  * Update a board's information
  *
- * @param id The id of the board to update
- * @param topic The new topic for the board
- * @param description The new description for the board
- * @param categoryId The id of the category to assign the board to
+ * @param {string} id - The id of the board to update
+ * @param {string} topic - The new topic for the board
+ * @param {string} description - The new description for the board
+ * @param {string} categoryId - The id of the category to assign the board to
  *
  * @returns An object containing updated board information
  */
@@ -66,7 +64,6 @@ const update = async (
   } catch (err) {
     throw new HttpError("Error fetching board", 500);
   }
-
   if (!board) {
     throw new HttpError("Board not found", 404);
   }
@@ -91,10 +88,15 @@ const update = async (
 
       // Add to new category
       const newCategory = await BoardCategoryModel.findById(categoryId);
-      newCategory?.boards.push(board._id);
-      await newCategory?.save({ session: sess, validateModifiedOnly: true });
+      if (!newCategory) {
+        throw new HttpError("Could not find category", 404);
+      }
 
-      board.category = { id: newCategory!._id, topic: newCategory!.topic };
+      newCategory.boards.push(board._id);
+      await newCategory.save({ session: sess, validateModifiedOnly: true });
+
+      board.category._id = newCategory._id;
+      board.category.topic = newCategory.topic;
     }
     await board.save({ session: sess, validateModifiedOnly: true });
 
