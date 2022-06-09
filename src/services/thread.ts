@@ -7,7 +7,7 @@ import UserModel from "../models/user";
 import HttpError from "../utils/httpError";
 
 /**
- * Get a list of all threads
+ * Fetch a list of all threads
  *
  * @throws after a database error
  *
@@ -30,8 +30,8 @@ const getAll = async () => {
  *
  * @param {string} id - The id of the thread to fetch
  *
- * @throws 500 after a database error
- * @throws 404 if the thread cannot be found
+ * @throws after a database error
+ * @throws if the thread cannot be found
  *
  * @returns An object containing thread information
  */
@@ -54,10 +54,10 @@ const getById = async (id: string) => {
 /**
  * Fetch all of a user's threads
  *
- * @param {string} id The id of the user
+ * @param {string} id - The id of the user
  *
- * @throws 500 after a database error
- * @throws 404 if the user cannot be found
+ * @throws after a database error
+ * @throws if the user cannot be found
  *
  * @returns An array of thread objects
  */
