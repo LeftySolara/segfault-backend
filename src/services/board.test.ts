@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { mongo } from "mongoose";
 import testHelpers from "../utils/testHelpers";
 import BoardService from "./board";
 
@@ -14,8 +14,7 @@ describe("The Board service", () => {
     description: expect.any(String),
     threads: expect.any(Array),
     category: {
-      _id: expect.any(mongoose.Types.ObjectId),
-      id: expect.any(String),
+      categoryId: expect.any(mongoose.Types.ObjectId),
       topic: expect.any(String),
     },
     id: expect.any(String),
@@ -60,7 +59,7 @@ describe("The Board service", () => {
         description,
         threads: [],
         category: {
-          id: new mongoose.Types.ObjectId(categoryId),
+          categoryId: new mongoose.Types.ObjectId(categoryId),
           topic: "UPDATE test category",
         },
       };

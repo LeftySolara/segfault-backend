@@ -75,16 +75,22 @@ const update = async (
     const sess = await mongoose.startSession();
     sess.startTransaction();
 
-    if (categoryId && categoryId !== board.category.id.toString()) {
+    if (categoryId && categoryId !== board.category.categoryId.toString()) {
       // Remove from original category
       const boardId = board.id;
-      const oldCategory = await BoardCategoryModel.findById(board.category.id);
-      const idx = oldCategory?.boards.findIndex(
+      const oldCategory = await BoardCategoryModel.findById(
+        board.category.categoryId,
+      );
+      if (!oldCategory) {
+        throw new HttpError("Error updating board", 500);
+      }
+
+      const idx = oldCategory.boards.findIndex(
         (boardObj) => boardObj.id === boardId,
       );
 
-      oldCategory?.boards.splice(idx!, 1);
-      await oldCategory?.save({ session: sess, validateModifiedOnly: true });
+      oldCategory.boards.splice(idx, 1);
+      await oldCategory.save({ session: sess, validateModifiedOnly: true });
 
       // Add to new category
       const newCategory = await BoardCategoryModel.findById(categoryId);
@@ -111,9 +117,9 @@ const update = async (
 /**
  * Create a new board
  *
- * @param topic The name of the new board
- * @param description A brief description of the board's topic
- * @param categoryId The id of the category the board belongs to
+ * @param {string} topic - The name of the new board
+ * @param {string} description - A brief description of the board's topic
+ * @param {string} categoryId - The id of the category the board belongs to
  *
  * @returns An object containing board information
  */
@@ -150,7 +156,7 @@ const create = async (
     topic,
     description,
     category: {
-      id: categoryId,
+      categoryId: categoryId,
       topic: category.topic,
     },
   });
@@ -160,9 +166,8 @@ const create = async (
     sess.startTransaction();
 
     await board.save({ session: sess });
-    const boardId = (board.toObject({ getters: true }) as any).id;
 
-    category.boards.push(boardId);
+    category.boards.push(board._id);
     await category.save({ session: sess, validateModifiedOnly: true });
 
     await sess.commitTransaction();
@@ -176,7 +181,7 @@ const create = async (
 /**
  * Delete a board from the database
  *
- * @param {string} id The id of the board to delete
+ * @param {string} id - The id of the board to delete
  */
 const del = async (id: string) => {
   let board;
@@ -197,12 +202,17 @@ const del = async (id: string) => {
 
     // Remove the board from its category
     const boardId = board.id;
-    const oldCategory = await BoardCategoryModel.findById(board.category.id);
-    const idx = oldCategory?.boards.findIndex(
+    const oldCategory = await BoardCategoryModel.findById(
+      board.category.categoryId,
+    );
+    if (!oldCategory) {
+      throw new HttpError("Error deleting board", 500);
+    }
+    const idx = oldCategory.boards.findIndex(
       (boardObj) => boardObj.id === boardId,
     );
-    oldCategory?.boards.splice(idx!, 1);
-    await oldCategory?.save({ session: sess, validateModifiedOnly: true });
+    oldCategory.boards.splice(idx, 1);
+    await oldCategory.save({ session: sess, validateModifiedOnly: true });
 
     // Delete the board
     await BoardModel.findByIdAndDelete(boardId);

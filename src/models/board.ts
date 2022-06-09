@@ -1,7 +1,7 @@
 import { Schema, Types, model, Model } from "mongoose";
 
 interface Category {
-  _id: Types.ObjectId;
+  categoryId: Types.ObjectId;
   topic: string;
 }
 
@@ -21,10 +21,16 @@ type BoardModelType = Model<Board, {}, BoardDocumentOverrides>;
 const boardSchema = new Schema<Board, BoardModelType>({
   topic: { type: String, required: true },
   description: { type: String, required: true },
-  category: new Schema<Category>({ topic: String }),
   threads: [{ type: Schema.Types.ObjectId, required: true, ref: "Thread" }],
+  category: new Schema<Category>(
+    {
+      topic: { type: String, required: true },
+      categoryId: { type: Schema.Types.ObjectId, required: true },
+    },
+    { _id: false },
+  ),
 });
 
 const BoardModel = model<Board, BoardModelType>("Board", boardSchema);
 
-export default BoardModel;
+export { BoardModel as default, Category };
