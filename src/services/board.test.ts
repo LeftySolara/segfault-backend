@@ -14,7 +14,8 @@ describe("The Board service", () => {
     description: expect.any(String),
     threads: expect.any(Array),
     category: {
-      id: expect.any(mongoose.Types.ObjectId),
+      _id: expect.any(mongoose.Types.ObjectId),
+      id: expect.any(String),
       topic: expect.any(String),
     },
     id: expect.any(String),

@@ -2,7 +2,9 @@ import HttpError from "../utils/httpError";
 import BoardCategoryModel from "../models/boardCategory";
 
 /**
- * Fetch all board categories
+ * Fetch a list of all board categories
+ *
+ * @throws after a database error
  *
  * @returns An array of boardCategory objects
  */
@@ -21,11 +23,14 @@ const getAll = async () => {
 };
 
 /**
- * Fetch a board category by its ID
+ * Fetch a board category based on its Id
  *
- * @param id The ID of the category
+ * @param {string} id - The id of the category to fetch
  *
- * @returns An object containing the category information
+ * @throws after a database error
+ * @throws if the category cannot be found
+ *
+ * @returns An object containing category information
  */
 const getById = async (id: string) => {
   let boardCategory;
@@ -33,9 +38,8 @@ const getById = async (id: string) => {
   try {
     boardCategory = await BoardCategoryModel.findById(id);
   } catch (err) {
-    throw new HttpError(`Could not find category with id ${id}.`, 404);
+    throw new HttpError(`Error fetching category`, 500);
   }
-
   if (!boardCategory) {
     throw new HttpError(`Could not find category with id ${id}.`, 404);
   }
@@ -46,11 +50,14 @@ const getById = async (id: string) => {
 /**
  * Update a board category's information
  *
- * @param id The id of the board to update
- * @param topic The new category topic
- * @param sortOrder The new category sort order
+ * @param {string} id - The id of the board to update
+ * @param {string} topic - The new category topic
+ * @param {string} sortOrder - The new category sort order
  *
- * @returns An object containing the new category information
+ * @throws after a database error
+ * @throws if the category cannot be found
+ *
+ * @returns An object containing updated category information
  */
 const update = async (id: string, topic: string, sortOrder: number) => {
   let boardCategory;
@@ -58,28 +65,34 @@ const update = async (id: string, topic: string, sortOrder: number) => {
   try {
     boardCategory = await BoardCategoryModel.findById(id);
   } catch (err) {
-    throw new HttpError("Board category not found", 404);
+    throw new HttpError("Error fetching board category", 500);
+  }
+  if (!boardCategory) {
+    throw new HttpError(`Could not find category with id ${id}`, 404);
   }
 
-  boardCategory!.topic = topic;
-  boardCategory!.sortOrder = sortOrder;
+  boardCategory.topic = topic;
+  boardCategory.sortOrder = sortOrder;
 
   try {
-    await boardCategory?.save();
+    await boardCategory.save();
   } catch (err) {
     throw new HttpError("Could not update category", 500);
   }
 
-  return boardCategory?.toObject({ getters: true });
+  return boardCategory.toObject({ getters: true });
 };
 
 /**
- * Add a new board category to the database
+ * Create a new board category and add it to the database
  *
- * @param topic The name of the category
- * @param sortOrder The order in which to sort among other categories
+ * @param {string} topic - The name of the category
+ * @param {string} sortOrder - The order in which to sort among other categories
  *
- * @returns The new board category object
+ * @throws after a database error
+ * @throws if the category already exists
+ *
+ * @returns An object containing information from the new category
  */
 const create = async (topic: string, sortOrder: number) => {
   let existingBoardCategory;
@@ -88,7 +101,6 @@ const create = async (topic: string, sortOrder: number) => {
   } catch (err) {
     throw new HttpError("Category creation failed", 500);
   }
-
   if (existingBoardCategory) {
     throw new HttpError("Category exists", 422);
   }
@@ -109,23 +121,24 @@ const create = async (topic: string, sortOrder: number) => {
 };
 
 /**
- * Delete a board category
+ * Delete a board category from the database
  *
- * @param id The id of the board to delete
+ * @param {string} id - The id of the board to delete
  *
- * @returns An object containing the category that was deleted
+ * @throws after a database error
+ * @throws if the category cannot be found
+ *
+ * @returns An object containing information from the category that was deleted
  */
 const del = async (id: string) => {
   let category;
-
   try {
     category = await BoardCategoryModel.findById(id);
   } catch (err) {
     throw new HttpError("Could not delete category", 500);
   }
-
   if (!category) {
-    throw new HttpError("Could not find a board category for this id", 404);
+    throw new HttpError(`Could not find a board category for id ${id}`, 404);
   }
 
   let categoryObj;
