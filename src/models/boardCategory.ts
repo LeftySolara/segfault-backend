@@ -1,15 +1,25 @@
-import { Schema, Types, model } from "mongoose";
+import { Schema, Types, model, Model } from "mongoose";
 
-interface IBoardCategory {
+interface BoardCategory {
+  id: string;
+  _id: Types.ObjectId;
+  __v: number;
   topic: string;
-  boards: Types.ObjectId[];
+  boards: Types.Array<Types.ObjectId>;
   sortOrder: number;
 }
 
-const boardCategorySchema: Schema = new Schema<IBoardCategory>({
-  topic: { type: String, required: true },
+type BoardCategoryModelType = Model<BoardCategory, {}, {}>;
+
+const boardCategorySchema = new Schema<BoardCategory, BoardCategoryModelType>({
+  topic: { type: String, required: true, minlength: 1 },
   boards: [{ type: Schema.Types.ObjectId, required: true, ref: "Board" }],
   sortOrder: { type: Number, required: true, min: 0 },
 });
 
-export default model<IBoardCategory>("BoardCategory", boardCategorySchema);
+const BoardCategoryModel = model<BoardCategory, BoardCategoryModelType>(
+  "BoardCategory",
+  boardCategorySchema,
+);
+
+export default BoardCategoryModel;

@@ -13,7 +13,7 @@ describe("The boards controller", () => {
     description: expect.any(String),
     threads: expect.any(Array),
     category: {
-      id: expect.any(mongoose.Types.ObjectId),
+      categoryId: expect.any(mongoose.Types.ObjectId),
       topic: expect.any(String),
     },
     id: expect.any(String),
@@ -147,7 +147,7 @@ describe("The boards controller", () => {
           description,
           threads: [],
           category: {
-            id: new mongoose.Types.ObjectId(categoryId),
+            categoryId: new mongoose.Types.ObjectId(categoryId),
             topic: "Original Category",
           },
         },

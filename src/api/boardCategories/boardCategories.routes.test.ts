@@ -116,7 +116,7 @@ describe("Test the routes at /boardCategories", () => {
 
       it("should return 404 and an error message if the category does not exist", async () => {
         const response: request.Response = await request(app)
-          .patch("/boardCategories/123")
+          .patch("/boardCategories/123456789012")
           .send({ topic: "Hello", sortOrder: 5 });
         expect(response.statusCode).toBe(404);
         expect(response.body).toEqual(responseMessage);

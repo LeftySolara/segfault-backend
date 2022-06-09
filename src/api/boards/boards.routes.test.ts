@@ -7,17 +7,18 @@ describe("Test the routes at /boards", () => {
     message: expect.any(String),
   });
 
-  const boardObject = expect.objectContaining({
+  const boardObject = {
     __v: expect.any(Number),
     _id: expect.any(String),
+    id: expect.any(String),
     topic: expect.any(String),
     description: expect.any(String),
     threads: expect.any(Array),
-    category: expect.objectContaining({
-      id: expect.any(String),
+    category: {
+      categoryId: expect.any(String),
       topic: expect.any(String),
-    }),
-  });
+    },
+  };
 
   testHelpers.routeTestInit(app);
 
@@ -103,7 +104,7 @@ describe("Test the routes at /boards", () => {
             _id: boardId,
             id: boardId,
             category: {
-              id: categoryId,
+              categoryId,
               topic: "PATCH Test Category",
             },
             threads: [],

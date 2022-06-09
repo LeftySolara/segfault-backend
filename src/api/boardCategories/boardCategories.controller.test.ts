@@ -54,7 +54,7 @@ describe("The boardCategories controller", () => {
   describe("getCategoryById", () => {
     it("should return 404 and an error message when unsuccessful", async () => {
       await controller.getCategoryById(
-        { params: { id: "123" } } as unknown as Request,
+        { params: { id: "123456789012" } } as unknown as Request,
         mockResponse as Response,
         jest.fn(),
       );
