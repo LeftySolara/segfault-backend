@@ -1,4 +1,5 @@
 import express from "express";
+import { check } from "express-validator";
 import controller from "./threads.controller";
 
 /**
@@ -128,11 +129,17 @@ router.get("/", controller.getThreads);
  *         content:
  *           application/json:
  *             schema:
+ *               $ref: "#/components/schemas/Thread"
+ *       404:
+ *         description: The board or author could not be found
+ *         content:
+ *           application/json:
+ *             schema:
  *               type: object
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Thread created successfully
+ *                   example: Could not find board or author
  */
 router.post("/", controller.createThread);
 
@@ -156,8 +163,16 @@ router.post("/", controller.createThread);
  *           application/json:
  *             schema:
  *               $ref: "#/components/schemas/Thread"
- *       400:
+ *       404:
  *         description: Thread connot be found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Thread not found
  */
 router.get("/:id", controller.getThreadById);
 
@@ -181,24 +196,9 @@ router.get("/:id", controller.getThreadById);
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Thread updated successfully
- */
-// TODO: document request body
-router.patch("/:id", controller.updateThread);
-
-/**
- * @swagger
- * /threads/{id}:
- *   delete:
- *     summary: Delete a thread
- *     tags: [Threads]
- *     responses:
- *       200:
- *         description: The thread was deleted
+ *               $ref: "#/components/schemas/Thread"
+ *       404:
+ *         description: The thread was not found
  *         content:
  *           application/json:
  *             schema:
@@ -206,8 +206,90 @@ router.patch("/:id", controller.updateThread);
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Thread deleted successfully
+ *                   example: Thread not found
+ *     requestBody:
+ *       description: A JSON-formatted object containing thread information
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               topic:
+ *                 type: string
+ *                 description: The new topic of the thread
+ */
+router.patch("/:id", [check("topic").not().isEmpty()], controller.updateThread);
+
+/**
+ * @swagger
+ * /threads/{id}:
+ *   delete:
+ *     summary: Delete a thread
+ *     tags: [Threads]
+ *     parameters:
+ *       - in : path
+ *         name: id
+ *         description: The id of the thread to delete
+ *         schema:
+ *           type: string
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: The thread that was deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/Thread"
+ *       404:
+ *         description: The thread was not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Thread not found
  */
 router.delete("/:id", controller.deleteThread);
+
+/**
+ * @swagger
+ * /threads/user/{id}:
+ *   get:
+ *     summary: Fetch all threads created by a specific user
+ *     tags: [Threads]
+ *     parameters:
+ *       - in : path
+ *         name: id
+ *         description: The id of the user to search for
+ *         schema:
+ *           type: string
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: A list of the user's threads
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 threads:
+ *                   type: array
+ *                   items:
+ *                     $ref: "#/components/schemas/Thread"
+ *       404:
+ *         description: The user was not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User not found
+ */
+router.get("/user/:id", controller.getThreadsByUser);
 
 export default router;

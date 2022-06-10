@@ -5,6 +5,7 @@ import expressLoader from "../loaders/express";
 
 import BoardCategoryService from "../services/boardCategory";
 import BoardService from "../services/board";
+import ThreadService from "../services/thread";
 import UserService from "../services/user";
 
 let replset: MongoMemoryReplSet;
@@ -117,6 +118,25 @@ const generateBoardId = async (
 };
 
 /**
+ * Create a new thread and return its id
+ *
+ * @param {string} authorId - The id of the thread's author
+ * @param {string} boardId - The id of the board that the thread belongs to
+ * @param {string} topic - The topic of the thread
+ *
+ * @returns The id of the created thread
+ */
+const generateThreadId = async (
+  authorId: string,
+  boardId: string,
+  topic: string,
+) => {
+  const threadObj: any = await ThreadService.create(authorId, boardId, topic);
+
+  return threadObj.id;
+};
+
+/**
  * Create a new user and return its id
  *
  * @param {string} username The user's username
@@ -135,12 +155,61 @@ const generateUserId = async (
 };
 
 /**
+ * Generate a thread to be used for tests
+ *
+ * @returns An object containing thread information
+ */
+const generateThread = async () => {
+  const username = "generatedThreadAuthor";
+  const email = "generatedThreadAuthor@example.com";
+  const password = "password123!";
+  const user: any = await UserService.create(username, email, password);
+
+  const boardCategoryTopic = "generatedCategory";
+  const boardCategory: any = await BoardCategoryService.create(
+    boardCategoryTopic,
+    1,
+  );
+
+  const boardTopic = "generatedBoard";
+  const boardDescription = "A generated board";
+  const board: any = await BoardService.create(
+    boardTopic,
+    boardDescription,
+    boardCategory.id,
+  );
+
+  const threadTopic = "A generated thread topic";
+  const thread: any = await ThreadService.create(
+    user.userId,
+    board.id,
+    threadTopic,
+  );
+
+  return thread;
+};
+
+/**
+ * Generate a user to be used for tests
+ *
+ * @returns An object containing user information
+ */
+const generateUser = async () => {
+  const username = "generatedUser";
+  const email = "generatedUser@example.com";
+  const password = "password123!";
+  const user: any = UserService.create(username, email, password);
+
+  return user;
+};
+
+/**
  * Create a test board category for use in tests
  *
  * @returns A BoardCategory object
  */
 const generateBoardCategory = async () => {
-  const category = await BoardCategoryService.create("TestCategory", 0);
+  const category: any = await BoardCategoryService.create("TestCategory", 0);
   return category;
 };
 
@@ -152,7 +221,7 @@ const generateBoardCategory = async () => {
 const generateBoard = async () => {
   const category = await BoardCategoryService.create("TestCategory", 0);
 
-  const board = await BoardService.create(
+  const board: any = await BoardService.create(
     "TestBoard",
     "TestBoard description",
     category.id,
@@ -167,7 +236,10 @@ export default {
   serviceTestInit,
   generateCategoryId,
   generateBoardId,
+  generateThreadId,
   generateUserId,
+  generateThread,
+  generateUser,
   generateBoardCategory,
   generateBoard,
 };
