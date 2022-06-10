@@ -227,9 +227,22 @@ router.patch("/:id", [check("topic").not().isEmpty()], controller.updateThread);
  *   delete:
  *     summary: Delete a thread
  *     tags: [Threads]
+ *     parameters:
+ *       - in : path
+ *         name: id
+ *         description: The id of the thread to delete
+ *         schema:
+ *           type: string
+ *         required: true
  *     responses:
  *       200:
- *         description: The thread was deleted
+ *         description: The thread that was deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/Thread"
+ *       404:
+ *         description: The thread was not found
  *         content:
  *           application/json:
  *             schema:
@@ -237,7 +250,7 @@ router.patch("/:id", [check("topic").not().isEmpty()], controller.updateThread);
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Thread deleted successfully
+ *                   example: Thread not found
  */
 router.delete("/:id", controller.deleteThread);
 

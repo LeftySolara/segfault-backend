@@ -223,12 +223,40 @@ describe("Test the routes at /threads", () => {
       });
     });
 
-    it("should respond to DELETE requests by returning 200 and a confirmation message", async () => {
-      const response: request.Response = await request(app).delete(
-        "/threads/123",
-      );
-      expect(response.statusCode).toBe(200);
-      expect(response.body).toEqual(responseMessage);
+    describe("for DELETE requests", () => {
+      it("should respond with 200 and a thread object", async () => {
+        const thread = await testHelpers.generateThread();
+
+        const response: request.Response = await request(app).delete(
+          `/threads/${thread.id}`,
+        );
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toEqual({
+          thread: {
+            ...thread,
+            _id: thread._id.toString(),
+            dateCreated: expect.any(String),
+            author: {
+              authorId: thread.author.authorId.toString(),
+              email: thread.author.email,
+              username: thread.author.username,
+            },
+            board: {
+              boardId: thread.board.boardId.toString(),
+              topic: thread.board.topic,
+            },
+          },
+        });
+      });
+
+      it("should respond with 404 and an error message if the thread cannot be found", async () => {
+        const response: request.Response = await request(app).delete(
+          "/threads/123456789012",
+        );
+
+        expect(response.statusCode).toBe(404);
+        expect(response.body).toEqual(responseMessage);
+      });
     });
   });
 
