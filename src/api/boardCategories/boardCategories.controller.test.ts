@@ -4,54 +4,75 @@ import testHelpers from "../../utils/testHelpers";
 import controller from "./boardCategories.controller";
 
 describe("The boardCategories controller", () => {
-  const req = { body: { topic: "Controller Test Category", sortOrder: 1 } };
-
   const mockResponse = {
     json: jest.fn(),
     status: jest.fn().mockReturnThis(),
   } as unknown;
 
-  const boardCategoryObject = {
-    _id: expect.any(mongoose.Types.ObjectId),
-    topic: expect.any(String),
-    boards: expect.any(Array),
-    sortOrder: expect.any(Number),
-    id: expect.any(String),
-    __v: expect.any(Number),
-  };
-
   testHelpers.controllerTestInit();
 
   describe("getCategories", () => {
     it("should return 200 and an array of boardCategory objects", async () => {
-      const req = { body: { topic: "FetchMe", sortOrder: 2 } };
+      const category = await testHelpers.generateBoardCategory();
 
-      const mResponse = {
-        json: jest.fn(),
-        status: jest.fn().mockReturnThis(),
-      } as unknown;
-
-      // Create a category to fetch
-      await controller.createCategory(
-        req as Request,
-        mResponse as Response,
-        jest.fn(),
-      );
-
+      const req = {} as unknown;
       await controller.getCategories(
         req as Request,
         mockResponse as Response,
         jest.fn(),
       );
+
       const mRes = mockResponse as Response;
       expect(mRes.status).toBeCalledWith(200);
       expect((mRes.json as any).mock.calls[0][0]).toMatchObject({
-        categories: [boardCategoryObject],
+        categories: [
+          {
+            _id: category._id,
+            topic: category.topic,
+            boards: category.boards,
+            sortOrder: category.sortOrder,
+            id: category.id,
+            __v: category.__v,
+          },
+        ],
       });
+    });
+
+    it("should return 200 and an empty array if there are no categories", async () => {
+      const req = {} as unknown;
+      await controller.getCategories(
+        req as Request,
+        mockResponse as Response,
+        jest.fn(),
+      );
+
+      const mRes = mockResponse as Response;
+      expect(mRes.status).toBeCalledWith(200);
+      expect(mRes.json).toBeCalledWith({ categories: [] });
     });
   });
 
   describe("getCategoryById", () => {
+    it("should return 200 and a BoardCategory object", async () => {
+      const category = await testHelpers.generateBoardCategory();
+
+      const req = {
+        params: {
+          id: category.id,
+        },
+      } as unknown;
+
+      await controller.getCategoryById(
+        req as Request,
+        mockResponse as Response,
+        jest.fn(),
+      );
+
+      const mRes = mockResponse as Response;
+      expect(mRes.status).toBeCalledWith(200);
+      expect(mRes.json).toBeCalledWith({ category });
+    });
+
     it("should return 404 and an error message when unsuccessful", async () => {
       await controller.getCategoryById(
         { params: { id: "123456789012" } } as unknown as Request,
@@ -81,29 +102,63 @@ describe("The boardCategories controller", () => {
   });
 
   describe("createCategory", () => {
-    it("should return 201 and a confirmation message when inputs are valid", async () => {
+    it("should return 201 and a BoardCategory object when inputs are valid", async () => {
+      const topic = "createCategory";
+      const sortOrder = 1;
+
+      const req = {
+        body: {
+          topic,
+          sortOrder,
+        },
+      } as unknown;
+
+      const mockResponse = {
+        json: jest.fn(),
+        status: jest.fn().mockReturnThis(),
+      } as unknown;
+
       await controller.createCategory(
         req as Request,
         mockResponse as Response,
         jest.fn(),
       );
+
       const mRes = mockResponse as Response;
       expect(mRes.status).toBeCalledWith(201);
-      expect(mRes.json).toBeCalledWith({ message: expect.any(String) });
+      expect(mRes.json).toBeCalledWith({
+        category: {
+          __v: 0,
+          _id: expect.any(mongoose.Types.ObjectId),
+          boards: [],
+          id: expect.any(String),
+          sortOrder,
+          topic,
+        },
+      });
     });
 
     it("should return 422 and an error message when the category already exists", async () => {
-      await controller.createCategory(
-        req as Request,
-        mockResponse as Response,
-        jest.fn(),
-      );
+      const category = await testHelpers.generateBoardCategory();
+
+      const req = {
+        body: {
+          topic: category.topic,
+          sortOrder: category.sortOrder,
+        },
+      } as unknown;
+
+      const mockResponse = {
+        json: jest.fn(),
+        status: jest.fn().mockReturnThis(),
+      } as unknown;
 
       await controller.createCategory(
         req as Request,
         mockResponse as Response,
         jest.fn(),
       );
+
       const mRes = mockResponse as Response;
       expect(mRes.status).toBeCalledWith(422);
       expect(mRes.json).toBeCalledWith({ message: expect.any(String) });
