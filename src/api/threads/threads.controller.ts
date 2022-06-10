@@ -131,9 +131,22 @@ const createThread = async (req: Request, res: Response, next: Function) => {
 
 /**
  * Delete a thread
+ *
+ * @param {string} req.params.id - The id of the thread to delete
  */
-const deleteThread = (req: Request, res: Response, next: Function) => {
-  return res.status(200).json({ message: "Deleting thread..." });
+const deleteThread = async (req: Request, res: Response, next: Function) => {
+  const { id } = req.params;
+
+  let thread;
+  try {
+    thread = await ThreadService.del(id);
+  } catch (err: unknown) {
+    if (err instanceof HttpError) {
+      return res.status(err.code).json({ message: err.message });
+    }
+  }
+
+  return res.status(200).json({ thread });
 };
 
 export default {
