@@ -140,4 +140,27 @@ describe("The Thread service", () => {
       ).rejects.toThrow();
     });
   });
+
+  describe("del", () => {
+    it("should return information about the deleted thread", async () => {
+      const thread = await testHelpers.generateThread();
+      const deletedThread = await ThreadService.del(thread.id);
+      expect(deletedThread).toEqual(thread);
+    });
+
+    it("should delete the requested thread from the database", async () => {
+      const thread = await testHelpers.generateThread();
+      await ThreadService.del(thread.id);
+
+      expect(
+        async () => await ThreadService.getById(thread.id),
+      ).rejects.toThrow();
+    });
+
+    it("should throw an error if the thread is not found", () => {
+      expect(
+        async () => await ThreadService.del("123456789012"),
+      ).rejects.toThrow();
+    });
+  });
 });
