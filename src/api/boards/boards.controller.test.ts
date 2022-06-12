@@ -6,19 +6,6 @@ import controller from "./boards.controller";
 describe("The boards controller", () => {
   const req = {};
 
-  const boardObject = {
-    __v: expect.any(Number),
-    _id: expect.any(mongoose.Types.ObjectId),
-    topic: expect.any(String),
-    description: expect.any(String),
-    threads: expect.any(Array),
-    category: {
-      categoryId: expect.any(mongoose.Types.ObjectId),
-      topic: expect.any(String),
-    },
-    id: expect.any(String),
-  };
-
   testHelpers.controllerTestInit();
 
   describe("getBoards", () => {
@@ -28,15 +15,7 @@ describe("The boards controller", () => {
     } as unknown;
 
     it("should return 200 and an array of board objects", async () => {
-      // Create a board to fetch
-      const categoryId = await testHelpers.generateCategoryId(
-        "getBoards Category",
-      );
-      const boardId = await testHelpers.generateBoardId(
-        "getBoards",
-        "A test run",
-        categoryId,
-      );
+      const board = await testHelpers.generateBoard();
 
       await controller.getBoards(
         req as Request,
@@ -47,7 +26,7 @@ describe("The boards controller", () => {
       const mRes = mockResponse as Response;
       expect(mRes.status).toBeCalledWith(200);
       expect(mRes.json).toBeCalledWith({
-        boards: expect.arrayContaining([boardObject]),
+        boards: expect.arrayContaining([board]),
       });
     });
   });
@@ -59,16 +38,11 @@ describe("The boards controller", () => {
     } as unknown;
 
     it("should return 200 and a board object", async () => {
-      const categoryId = await testHelpers.generateCategoryId("getBoardById");
-      const boardId = await testHelpers.generateBoardId(
-        "getBoardById",
-        "A controller test",
-        categoryId,
-      );
+      const board = await testHelpers.generateBoard();
 
       const req = {
         params: {
-          id: boardId,
+          id: board.id,
         },
       } as unknown;
 
@@ -77,12 +51,13 @@ describe("The boards controller", () => {
         mockResponse as Response,
         jest.fn(),
       );
+
       const mRes = mockResponse as Response;
       expect(mRes.status).toBeCalledWith(200);
-      expect(mRes.json).toBeCalledWith({ board: boardObject });
+      expect(mRes.json).toBeCalledWith({ board });
     });
 
-    it("should return 404 if the board is not found", async () => {
+    it("should return 404 and an error message if the board is not found", async () => {
       const req = {
         params: {
           id: "123456789012",
@@ -108,26 +83,18 @@ describe("The boards controller", () => {
     } as unknown;
 
     it("should return 200 and an updated board object", async () => {
-      const categoryId = await testHelpers.generateCategoryId(
-        "Original Category",
-      );
-      const boardId = await testHelpers.generateBoardId(
-        "Original topic",
-        "Original description",
-        categoryId,
-      );
-
+      const board = await testHelpers.generateBoard();
       const topic = "New topic";
       const description = "New description";
 
       const req = {
         params: {
-          id: boardId,
+          id: board.id,
         },
         body: {
           topic,
           description,
-          categoryId,
+          categoryId: board.category.id,
         },
       } as unknown;
 
@@ -140,15 +107,15 @@ describe("The boards controller", () => {
       const mRes = mockResponse as Response;
       const updatedBoard = {
         board: {
-          __v: 0,
-          id: boardId,
-          _id: new mongoose.Types.ObjectId(boardId),
+          __v: board.__v,
+          id: board.id,
+          _id: new mongoose.Types.ObjectId(board.id),
           topic,
           description,
-          threads: [],
+          threads: board.threads,
           category: {
-            categoryId: new mongoose.Types.ObjectId(categoryId),
-            topic: "Original Category",
+            categoryId: new mongoose.Types.ObjectId(board.category.id),
+            topic: board.category.topic,
           },
         },
       };
@@ -188,14 +155,15 @@ describe("The boards controller", () => {
     } as unknown;
 
     it("should return 201 and the newly-created board object", async () => {
-      const categoryId = await testHelpers.generateCategoryId(
-        "Test Creation Category",
-      );
+      const category = await testHelpers.generateBoardCategory();
+      const topic = "createBoard";
+      const description = "Create a board";
+
       const req = {
         body: {
-          topic: "createBoard Example",
-          description: "Testing board creation",
-          categoryId,
+          topic,
+          description,
+          categoryId: category.id,
         },
       };
 
@@ -204,10 +172,22 @@ describe("The boards controller", () => {
         mockResponse as Response,
         jest.fn(),
       );
+
       const mRes = mockResponse as Response;
       expect(mRes.status).toBeCalledWith(201);
-      expect((mRes.json as any).mock.calls[0][0]).toMatchObject({
-        board: boardObject,
+      expect((mRes.json as any).mock.calls[0][0]).toEqual({
+        board: {
+          __v: expect.any(Number),
+          id: expect.any(String),
+          _id: expect.any(mongoose.Types.ObjectId),
+          threads: [],
+          category: {
+            categoryId: new mongoose.Types.ObjectId(category.id),
+            topic: category.topic,
+          },
+          topic,
+          description,
+        },
       });
     });
   });
@@ -219,15 +199,11 @@ describe("The boards controller", () => {
     } as unknown;
 
     it("should return 200 and a board object", async () => {
-      const categoryId = await testHelpers.generateCategoryId("deleteBoard");
-      const boardId = await testHelpers.generateBoardId(
-        "deleteBoard",
-        "delete board",
-        categoryId,
-      );
+      const board = await testHelpers.generateBoard();
+
       const req = {
         params: {
-          id: boardId,
+          id: board.id,
         },
       } as unknown;
 
@@ -236,9 +212,10 @@ describe("The boards controller", () => {
         mockResponse as Response,
         jest.fn(),
       );
+
       const mRes = mockResponse as Response;
       expect(mRes.status).toBeCalledWith(200);
-      expect(mRes.json).toBeCalledWith({ board: boardObject });
+      expect(mRes.json).toBeCalledWith({ board });
     });
 
     it("should return 404 and an error message if the board is not found", async () => {
