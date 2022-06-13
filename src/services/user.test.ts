@@ -7,20 +7,17 @@ describe("The User service", () => {
 
   describe("getAll", () => {
     it("should return a list of users", async () => {
-      const username = "fetch_test";
-      const email = "fetch@example.com";
-
-      await UserService.create(username, email, "erf#f34f3#FV6g");
-
+      const user = await testHelpers.generateUser();
       const users = await UserService.getAll();
+
       expect(users).toEqual([
         {
-          username,
-          email,
-          _id: expect.any(mongoose.Types.ObjectId),
-          id: expect.any(String),
-          posts: expect.any(Array),
-          threads: expect.any(Array),
+          username: user.username,
+          email: user.email,
+          _id: new mongoose.Types.ObjectId(user.userId),
+          id: user.userId,
+          posts: [],
+          threads: [],
           joinDate: expect.any(Date),
           __v: expect.any(Number),
         },
@@ -30,24 +27,16 @@ describe("The User service", () => {
 
   describe("getById", () => {
     it("should return an object containing user information", async () => {
-      const username = "getById";
-      const email = "getById@example.com";
-      const password = "34Fg76h$%^ht^7h";
-      const userId = await testHelpers.generateUserId(
-        username,
-        email,
-        password,
-      );
-
-      const userObj = await UserService.getById(userId);
+      const user = await testHelpers.generateUser();
+      const userObj = await UserService.getById(user.userId);
 
       expect(userObj).toMatchObject({
-        _id: new mongoose.Types.ObjectId(userId),
-        id: userId,
-        username,
-        email,
-        threads: expect.any(Array),
-        posts: expect.any(Array),
+        _id: new mongoose.Types.ObjectId(user.userId),
+        id: user.userId,
+        username: user.username,
+        email: user.email,
+        threads: [],
+        posts: [],
         joinDate: expect.any(Date),
       });
     });
@@ -61,17 +50,13 @@ describe("The User service", () => {
 
   describe("update", () => {
     it("should return an object containing updated user information", async () => {
-      const userId = await testHelpers.generateUserId(
-        "original_username",
-        "original_email@example.com",
-        "original_password123"!,
-      );
-
+      const user = await testHelpers.generateUser();
       const username = "new_username";
       const email = "new_email@example.com";
       const password = "new_password123!";
+
       const userInfo = await UserService.update(
-        userId,
+        user.userId,
         username,
         email,
         password,
@@ -79,12 +64,12 @@ describe("The User service", () => {
 
       expect(userInfo).toMatchObject({
         __v: expect.any(Number),
-        _id: new mongoose.Types.ObjectId(userId),
-        id: userId,
+        _id: new mongoose.Types.ObjectId(user.userId),
+        id: user.userId,
         username,
         email,
-        posts: expect.any(Array),
-        threads: expect.any(Array),
+        posts: [],
+        threads: [],
         joinDate: expect.any(Date),
       });
     });
