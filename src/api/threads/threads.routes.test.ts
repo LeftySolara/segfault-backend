@@ -13,88 +13,27 @@ describe("Test the routes at /threads", () => {
   describe("the endpoint /threads", () => {
     describe("for GET requests", () => {
       it("should respond with 200 and an array of thread objects", async () => {
-        const username = "getTest";
-        const email = "getTest@example.com";
-        const authorId = await testHelpers.generateUserId(
-          username,
-          email,
-          "password123!",
-        );
-
-        const boardCategoryTopic = "GET Test";
-        const boardCategoryId = await testHelpers.generateCategoryId(
-          boardCategoryTopic,
-        );
-
-        const boardTopic = "GET Test";
-        const boardId = await testHelpers.generateBoardId(
-          boardTopic,
-          "Description",
-          boardCategoryId,
-        );
-
-        const threadTopic = "GET Test";
-        await request(app).post("/threads").send({
-          authorId,
-          boardId,
-          topic: threadTopic,
-        });
+        const thread = await testHelpers.generateThread();
 
         const response: request.Response = await request(app).get("/threads");
         expect(response.statusCode).toBe(200);
-        expect(response.body).toEqual({
-          threads: [
-            {
-              __v: expect.any(Number),
-              _id: expect.any(String),
-              id: expect.any(String),
-              author: {
-                authorId,
-                email,
-                username,
-              },
-              board: {
-                boardId,
-                topic: boardTopic,
-              },
-              lastPost: null,
-              posts: expect.any(Array),
-              topic: threadTopic,
-              dateCreated: expect.any(String),
-            },
-          ],
+        expect(response.body).toMatchObject({
+          threads: [{ ...thread, dateCreated: expect.any(String) }],
         });
       });
     });
 
     describe("for POST requests", () => {
       it("should respond with 201 and a thread object", async () => {
-        const username = "postTest";
-        const email = "postTest@example.com";
-        const authorId = await testHelpers.generateUserId(
-          username,
-          email,
-          "password123!",
-        );
-
-        const boardCategoryTopic = "POSt Test";
-        const boardCategoryId = await testHelpers.generateCategoryId(
-          boardCategoryTopic,
-        );
-
-        const boardTopic = "POST Test";
-        const boardId = await testHelpers.generateBoardId(
-          boardTopic,
-          "Description",
-          boardCategoryId,
-        );
-
+        const board = await testHelpers.generateBoard();
+        const user = await testHelpers.generateUser();
         const threadTopic = "POST Test";
+
         const response: request.Response = await request(app)
           .post("/threads")
           .send({
-            authorId,
-            boardId,
+            authorId: user.userId,
+            boardId: board.id,
             topic: threadTopic,
           });
 
@@ -105,13 +44,13 @@ describe("Test the routes at /threads", () => {
             _id: expect.any(String),
             id: expect.any(String),
             author: {
-              authorId,
-              email,
-              username,
+              authorId: user.userId,
+              email: user.email,
+              username: user.username,
             },
             board: {
-              boardId,
-              topic: boardTopic,
+              boardId: board.id,
+              topic: board.topic,
             },
             dateCreated: expect.any(String),
             lastPost: null,
@@ -126,56 +65,14 @@ describe("Test the routes at /threads", () => {
   describe("the endpoint /threads/{id}", () => {
     describe("for GET requests", () => {
       it("should respond with 200 and a thread object", async () => {
-        const username = "getThread";
-        const email = "getThread@example.com";
-        const authorId = await testHelpers.generateUserId(
-          username,
-          email,
-          "password123!",
-        );
-
-        const boardCategoryTopic = "getThreadCategory";
-        const boardCategoryId = await testHelpers.generateCategoryId(
-          boardCategoryTopic,
-        );
-
-        const boardTopic = "boardTopic";
-        const boardId = await testHelpers.generateBoardId(
-          boardTopic,
-          "Description",
-          boardCategoryId,
-        );
-
-        const threadTopic = "getThreadById Test";
-        const threadId = await testHelpers.generateThreadId(
-          authorId,
-          boardId,
-          threadTopic,
-        );
+        const thread = await testHelpers.generateThread();
 
         const response: request.Response = await request(app).get(
-          `/threads/${threadId}`,
+          `/threads/${thread.id}`,
         );
         expect(response.statusCode).toBe(200);
-        expect(response.body).toEqual({
-          thread: {
-            __v: expect.any(Number),
-            _id: threadId,
-            author: {
-              authorId,
-              email,
-              username,
-            },
-            board: {
-              boardId,
-              topic: boardTopic,
-            },
-            dateCreated: expect.any(String),
-            id: expect.any(String),
-            lastPost: null,
-            posts: expect.any(Array),
-            topic: threadTopic,
-          },
+        expect(response.body).toMatchObject({
+          thread: { ...thread, dateCreated: expect.any(String) },
         });
       });
 
