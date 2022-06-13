@@ -3,97 +3,73 @@ import testHelpers from "../utils/testHelpers";
 import BoardService from "./board";
 
 describe("The Board service", () => {
-  const responseMessage = expect.objectContaining({
-    message: expect.any(String),
-  });
-
-  const boardObject = {
-    __v: expect.any(Number),
-    _id: expect.any(mongoose.Types.ObjectId),
-    topic: expect.any(String),
-    description: expect.any(String),
-    threads: expect.any(Array),
-    category: {
-      categoryId: expect.any(mongoose.Types.ObjectId),
-      topic: expect.any(String),
-    },
-    id: expect.any(String),
-  };
-
   testHelpers.serviceTestInit();
 
   describe("getAll", () => {
-    // TODO: create a board to test fetching with
     it("should return an array of board objects", async () => {
+      const board = await testHelpers.generateBoard();
       const boards = await BoardService.getAll();
-      expect(boards).toEqual([]);
+      expect(boards).toEqual([board]);
     });
   });
 
   describe("update", () => {
     it("should return an object containing updated board information", async () => {
-      const categoryId = await testHelpers.generateCategoryId(
-        "UPDATE test category",
-      );
-      const boardId = await testHelpers.generateBoardId(
-        "Original Topic",
-        "Original Description",
-        categoryId,
-      );
-
+      const board = await testHelpers.generateBoard();
       const topic = "Updated topic";
       const description = "Updated description";
 
-      const board = await BoardService.update(
-        boardId,
+      const updatedBoard = await BoardService.update(
+        board.id,
         topic,
         description,
-        categoryId,
+        board.category.categoryId,
       );
 
-      const updatedBoard = {
+      expect(updatedBoard).toEqual({
         __v: 0,
-        _id: new mongoose.Types.ObjectId(boardId),
-        id: boardId,
+        _id: new mongoose.Types.ObjectId(board.id),
+        id: board.id,
         topic,
         description,
         threads: [],
         category: {
-          categoryId: new mongoose.Types.ObjectId(categoryId),
-          topic: "UPDATE test category",
+          categoryId: new mongoose.Types.ObjectId(board.category.categoryId),
+          topic: board.category.topic,
         },
-      };
-
-      expect(board).toEqual(updatedBoard);
+      });
     });
   });
 
   describe("create", () => {
     it("should return an object containing board information", async () => {
-      const categoryId = await testHelpers.generateCategoryId(
-        "Service creation test",
-      );
+      const category = await testHelpers.generateBoardCategory();
+      const topic = "Example board";
+      const description = "This is a creation example";
 
-      const board = await BoardService.create(
-        "Example board",
-        "This is a creation example",
-        categoryId,
-      );
-      expect(board).toEqual(boardObject);
+      const board = await BoardService.create(topic, description, category.id);
+
+      expect(board).toEqual({
+        __v: expect.any(Number),
+        _id: expect.any(mongoose.Types.ObjectId),
+        id: expect.any(String),
+        description,
+        topic,
+        threads: [],
+        category: {
+          categoryId: category._id,
+          topic: category.topic,
+        },
+      });
     });
   });
 
   describe("del", () => {
     it("should return an object containing information about the deleted board", async () => {
-      const categoryId = await testHelpers.generateCategoryId("del test");
-      const boardId = await testHelpers.generateBoardId(
-        "del test",
-        "deletion test",
-        categoryId,
-      );
+      const board = await testHelpers.generateBoard();
+      const deletedBoard = await BoardService.del(board.id);
 
-      const board = await BoardService.del(boardId);
-      expect(board).toEqual(boardObject);
+      expect(deletedBoard).toEqual(board);
     });
 
     it("should throw an error when the board cannot be found", async () => {
