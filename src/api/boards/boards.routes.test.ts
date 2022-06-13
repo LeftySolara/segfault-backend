@@ -7,46 +7,49 @@ describe("Test the routes at /boards", () => {
     message: expect.any(String),
   });
 
-  const boardObject = {
-    __v: expect.any(Number),
-    _id: expect.any(String),
-    id: expect.any(String),
-    topic: expect.any(String),
-    description: expect.any(String),
-    threads: expect.any(Array),
-    category: {
-      categoryId: expect.any(String),
-      topic: expect.any(String),
-    },
-  };
-
   testHelpers.routeTestInit(app);
 
   describe("the endpoint /boards", () => {
     describe("for GET requests", () => {
       it("should return 200 and an array of board objects", async () => {
+        const board = await testHelpers.generateBoard();
+
         const response: request.Response = await request(app).get("/boards");
         expect(response.statusCode).toBe(200);
-        expect(response.body).toEqual({ boards: [] });
+        expect(response.body).toMatchObject({ boards: [board] });
       });
     });
 
     describe("for POST requests", () => {
       it("should return 201 and the newly-created board object", async () => {
-        const categoryId = await testHelpers.generateCategoryId(
-          "POST Requests Category",
-        );
+        const category = await testHelpers.generateBoardCategory();
+        const topic = "POST test";
+        const description = "POST test case";
+
         const payload = {
-          topic: "POST Example Board",
-          description: "An example board for POST requests",
-          categoryId,
+          topic,
+          description,
+          categoryId: category.id,
         };
 
         const response: request.Response = await request(app)
           .post("/boards")
           .send(payload);
         expect(response.statusCode).toBe(201);
-        expect(response.body).toEqual({ board: boardObject });
+        expect(response.body).toEqual({
+          board: {
+            __v: expect.any(Number),
+            _id: expect.any(String),
+            id: expect.any(String),
+            threads: [],
+            topic,
+            description,
+            category: {
+              categoryId: category.id,
+              topic: category.topic,
+            },
+          },
+        });
       });
     });
   });
@@ -54,19 +57,13 @@ describe("Test the routes at /boards", () => {
   describe("the endpoint /boards/{id}", () => {
     describe("for GET requests", () => {
       it("should return 200 and a board object", async () => {
-        // Create a board to fetch
-        const categoryId = await testHelpers.generateCategoryId("GET board");
-        const boardId = await testHelpers.generateBoardId(
-          "GET /boards/{id}",
-          "Testing fetching board",
-          categoryId,
-        );
+        const board = await testHelpers.generateBoard();
 
         const response: request.Response = await request(app).get(
-          `/boards/${boardId}`,
+          `/boards/${board.id}`,
         );
         expect(response.statusCode).toBe(200);
-        expect(response.body).toEqual({ board: boardObject });
+        expect(response.body).toMatchObject({ board });
       });
 
       it("should respond with 404 if the board is not found", async () => {
@@ -82,33 +79,15 @@ describe("Test the routes at /boards", () => {
       it("should return 200 and an updated board object", async () => {
         const topic = "PATCH Test";
         const description = "A PATCH test";
-        const categoryId = await testHelpers.generateCategoryId(
-          "PATCH Test Category",
-        );
-        const boardId = await testHelpers.generateBoardId(
-          "Original topic",
-          "Original description",
-          categoryId,
-        );
+        const board = await testHelpers.generateBoard();
 
         const response: request.Response = await request(app)
-          .patch(`/boards/${boardId}`)
-          .send({ topic, description, categoryId });
+          .patch(`/boards/${board.id}`)
+          .send({ topic, description, categoryId: board.category.categoryId });
 
         expect(response.statusCode).toBe(200);
-        expect(response.body).toEqual({
-          board: {
-            topic,
-            description,
-            __v: 0,
-            _id: boardId,
-            id: boardId,
-            category: {
-              categoryId,
-              topic: "PATCH Test Category",
-            },
-            threads: [],
-          },
+        expect(response.body).toMatchObject({
+          board: { ...board, topic, description },
         });
       });
 
@@ -128,18 +107,13 @@ describe("Test the routes at /boards", () => {
 
     describe("for DELETE requests", () => {
       it("should return 200 and a board object", async () => {
-        const categoryId = await testHelpers.generateCategoryId("DELETE test");
-        const boardId = await testHelpers.generateBoardId(
-          "DELETE Test",
-          "Testing DELETE",
-          categoryId,
-        );
+        const board = await testHelpers.generateBoard();
 
         const response: request.Response = await request(app).delete(
-          `/boards/${boardId}`,
+          `/boards/${board.id}`,
         );
         expect(response.statusCode).toBe(200);
-        expect(response.body).toEqual({ board: boardObject });
+        expect(response.body).toMatchObject({ board });
       });
 
       it("should return 404 and an error message when the board is not found", async () => {

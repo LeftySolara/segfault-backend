@@ -7,47 +7,52 @@ describe("Test the routes at /boardCategories", () => {
     message: expect.any(String),
   });
 
-  const boardCategoryObject = expect.objectContaining({
-    __v: expect.any(Number),
-    _id: expect.any(String),
-    boards: expect.any(Array),
-    id: expect.any(String),
-    sortOrder: expect.any(Number),
-    topic: expect.any(String),
-  });
-
   testHelpers.routeTestInit(app);
 
   describe("the endpoint /boardCategories", () => {
     describe("for GET requests", () => {
       it("should respond by returning 200 and an array of boardCategory objects", async () => {
-        // Create a category to fetch
-        const payload = { topic: "Example Category", sortOrder: 1 };
-        await request(app).post("/boardCategories").send(payload);
+        const category = await testHelpers.generateBoardCategory();
 
         const response: request.Response = await request(app).get(
           "/boardCategories",
         );
         expect(response.statusCode).toBe(200);
         expect(response.body).toEqual({
-          categories: [boardCategoryObject],
+          categories: [{ ...category, _id: category._id.toString() }],
         });
       });
     });
 
     describe("for POST requests", () => {
       it("should respond by returning 201 and a the new category object", async () => {
-        const payload = { topic: "POST Test", sortOrder: 0 };
+        const topic = "POST test";
+        const sortOrder = 1;
+        const payload = { topic, sortOrder };
+
         const response: request.Response = await request(app)
           .post("/boardCategories")
           .send(payload);
+
         expect(response.statusCode).toBe(201);
-        expect(response.body.category).toEqual(boardCategoryObject);
+        expect(response.body).toEqual({
+          category: {
+            topic,
+            sortOrder,
+            _id: expect.any(String),
+            id: expect.any(String),
+            __v: expect.any(Number),
+            boards: [],
+          },
+        });
       });
 
       it("should respond by returning 422 and an error message when the category already exists", async () => {
-        const payload = { topic: "POST Test", sortOrder: 0 };
-        await request(app).post("/boardCategories").send(payload);
+        const category = await testHelpers.generateBoardCategory();
+        const payload = {
+          topic: category.topic,
+          sortOrder: category.sortOrder,
+        };
 
         const response: request.Response = await request(app)
           .post("/boardCategories")
@@ -79,13 +84,15 @@ describe("Test the routes at /boardCategories", () => {
   describe("the endpoint /boardCategories/{id}", () => {
     describe("for GET requests", () => {
       it("should return 200 and a board category object", async () => {
-        const id = await testHelpers.generateCategoryId("GET Test");
+        const category = await testHelpers.generateBoardCategory();
 
         const response: request.Response = await request(app).get(
-          `/boardCategories/${id}`,
+          `/boardCategories/${category.id}`,
         );
         expect(response.statusCode).toBe(200);
-        expect(response.body).toEqual({ category: boardCategoryObject });
+        expect(response.body).toEqual({
+          category: { ...category, _id: category._id.toString() },
+        });
       });
 
       it("should return 404 and an error message when the category cannot be found", async () => {
@@ -99,18 +106,26 @@ describe("Test the routes at /boardCategories", () => {
 
     describe("for PATCH requests", () => {
       it("should return 200 and the updated category object", async () => {
-        const id = await testHelpers.generateCategoryId("PATCH Test");
-        const topic: string = "Updated Category";
-        const sortOrder: number = 2;
+        const category = await testHelpers.generateBoardCategory();
+        const topic = "Updated Category";
+        const sortOrder = 2;
 
         const payload = { topic, sortOrder };
         const response: request.Response = await request(app)
-          .patch(`/boardCategories/${id}`)
+          .patch(`/boardCategories/${category.id}`)
           .send(payload);
 
         expect(response.statusCode).toBe(200);
-        expect(response.body).toEqual({ category: boardCategoryObject });
-        expect(response.body.category.topic).toBe("Updated Category");
+        expect(response.body).toEqual({
+          category: {
+            ...category,
+            topic,
+            sortOrder,
+            _id: category._id.toString(),
+          },
+        });
+
+        expect(response.body.category.topic).toBe(topic);
         expect(response.body.category.sortOrder).toBe(sortOrder);
       });
 
@@ -133,17 +148,19 @@ describe("Test the routes at /boardCategories", () => {
 
     describe("for DELETE requests", () => {
       it("should return 200 and the deleted category", async () => {
-        const id = await testHelpers.generateCategoryId("DELETE Test");
+        const category = await testHelpers.generateBoardCategory();
 
         const response: request.Response = await request(app).del(
-          `/boardCategories/${id}`,
+          `/boardCategories/${category.id}`,
         );
         expect(response.statusCode).toBe(200);
-        expect(response.body).toEqual({ category: boardCategoryObject });
+        expect(response.body).toEqual({
+          category: { ...category, _id: category._id.toString() },
+        });
 
         // Verify the category was actually deleted
         const getResponse: request.Response = await request(app).get(
-          `/boardCategories/${id}`,
+          `/boardCategories/${category.id}`,
         );
         expect(getResponse.statusCode).toBe(404);
         expect(getResponse.body).toEqual(responseMessage);
