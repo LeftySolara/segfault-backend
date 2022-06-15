@@ -113,4 +113,24 @@ describe("The Post service", () => {
       ).rejects.toThrow();
     });
   });
+
+  describe("update", () => {
+    it("should return an updated post object", async () => {
+      const post = await testHelpers.generatePost();
+      const newContent = "New post content";
+
+      const updatedPost = await PostService.update(post.id, newContent);
+
+      expect(updatedPost).toEqual({
+        ...post,
+        content: newContent,
+      });
+    });
+
+    it("should throw an error if the post does not exist", () => {
+      expect(
+        async () => await PostService.update("123456789012", "Hello World"),
+      ).rejects.toThrow();
+    });
+  });
 });
