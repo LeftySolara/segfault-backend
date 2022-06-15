@@ -191,4 +191,77 @@ const update = async (id: string, content: string) => {
   return post.toObject({ getters: true });
 };
 
-export default { getAll, getById, getByUser, getByThread, create, update };
+/**
+ * Delete a post from a thread
+ *
+ * @param {string} id - The id of the post to delete
+ *
+ * @throws after a database error
+ * @throws if the post cannot be found
+ * @throws if the thread cannot be found
+ * @throws if the user cannot be found
+ *
+ * @returns An object containing information about the deleted post
+ */
+const del = async (id: string) => {
+  let post;
+
+  try {
+    post = await PostModel.findById(id);
+  } catch (err: unknown) {
+    throw new HttpError("Error deleting post", 500);
+  }
+  if (!post) {
+    throw new HttpError("Post not found", 404);
+  }
+
+  // We could have just used .populate() earlier to get the thread and author
+  // and pull from them that way. Unfortunately, we've yet to figure out
+  // how to get TypeScript to recognize the populated fields such as
+  // thread.posts or author.posts. So, we're doing some extra queries
+  // and getting the data the long way.
+  let thread;
+  try {
+    thread = await ThreadModel.findById(post.thread.threadId);
+  } catch (err: unknown) {
+    throw new HttpError("Error deleting post", 500);
+  }
+  if (!thread) {
+    throw new HttpError("Thread not found", 404);
+  }
+
+  let author;
+  try {
+    author = await UserModel.findById(post.author.authorId);
+  } catch (err: unknown) {
+    throw new HttpError("Error deleting post", 500);
+  }
+  if (!author) {
+    throw new HttpError("User not found", 404);
+  }
+
+  const postObj = post.toObject({ getters: true });
+  try {
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+
+    // Remove the post from its thread
+    thread.posts.pull(post);
+    await thread.save({ session: sess, validateModifiedOnly: true });
+
+    // Remove the post from the user
+    author.posts.pull(post);
+    author.save({ session: sess, validateModifiedOnly: true });
+
+    // Delete the post
+    await PostModel.findByIdAndDelete(id);
+
+    sess.commitTransaction();
+  } catch (err) {
+    throw new HttpError("Error deleting post", 500);
+  }
+
+  return postObj;
+};
+
+export default { getAll, getById, getByUser, getByThread, create, update, del };
