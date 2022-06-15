@@ -133,4 +133,19 @@ describe("The Post service", () => {
       ).rejects.toThrow();
     });
   });
+
+  describe("del", () => {
+    it("should return information about the deleted post", async () => {
+      const post = await testHelpers.generatePost();
+      const deletedPost = await PostService.del(post.id);
+
+      expect(deletedPost).toEqual(post);
+    });
+
+    it("should throw an error if the post does not exist", () => {
+      expect(
+        async () => await PostService.del("123456789012"),
+      ).rejects.toThrow();
+    });
+  });
 });
