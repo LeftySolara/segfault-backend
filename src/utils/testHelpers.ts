@@ -143,10 +143,14 @@ const generatePost = async () => {
   );
 
   const threadTopic = "Post Testing Thread";
-  const thread: any = ThreadService.create(user.userId, board.id, threadTopic);
+  const thread: any = await ThreadService.create(
+    user.userId,
+    board.id,
+    threadTopic,
+  );
 
   const postContent = "Post Content";
-  const post = PostService.create(user.userId, thread.id, postContent);
+  const post = await PostService.create(user.userId, thread.id, postContent);
 
   return post;
 };
