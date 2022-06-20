@@ -56,8 +56,18 @@ const getById = async (id: string) => {
  * @param {string} id - The id of the user whose posts to fetch
  */
 const getByUser = async (id: string) => {
-  let posts;
+  let user;
+  try {
+    user = await UserModel.findById(id);
+  } catch (err: unknown) {
+    throw new HttpError("Error fetching posts", 500);
+  }
 
+  if (!user) {
+    throw new HttpError("User not found", 404);
+  }
+
+  let posts;
   try {
     posts = await PostModel.find({ "author.authorId": id });
   } catch (err: unknown) {

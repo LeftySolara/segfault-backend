@@ -1,21 +1,94 @@
 import { Request, Response } from "express";
+import HttpError from "../../utils/httpError";
+import PostService from "../../services/post";
 
 /**
  * Fetch all posts
  *
- * @returns Status code 200 and a confirmation message
+ * @returns On success, returns status code 200 and an array of post objects
  */
-const getPosts = (req: Request, res: Response, next: Function) => {
-  return res.status(200).json({ message: "Fetching posts..." });
+const getPosts = async (req: Request, res: Response, next: Function) => {
+  let posts;
+
+  try {
+    posts = await PostService.getAll();
+  } catch (err: unknown) {
+    if (err instanceof HttpError) {
+      return res.status(err.code).json({ message: err.message });
+    }
+  }
+
+  return res.status(200).json({ posts });
 };
 
 /**
- * Fetch a post by its ID
+ * Fetch a post by its id
  *
- * @returns Status code 200 and a confirmation message
+ * @param {string} req.params.id - The id of the post to fetch
+ *
+ * @returns On success, returns status code 200 and a post object
  */
-const getPostById = (req: Request, res: Response, next: Function) => {
-  return res.status(200).json({ message: "Fetching post..." });
+const getPostById = async (req: Request, res: Response, next: Function) => {
+  const { id } = req.params;
+  let post;
+
+  try {
+    post = await PostService.getById(id);
+  } catch (err: unknown) {
+    if (err instanceof HttpError) {
+      return res.status(err.code).json({ message: err.message });
+    }
+  }
+
+  return res.status(200).json({ post });
+};
+
+/**
+ * Fetch all posts created by a specific user
+ *
+ * @param {string} req.params.id - The id of the user
+ *
+ * @returns On success, returns status code 200 and an array of post objects
+ */
+const getPostsByUser = async (req: Request, res: Response, next: Function) => {
+  const { id } = req.params;
+  let posts;
+
+  try {
+    posts = await PostService.getByUser(id);
+  } catch (err: unknown) {
+    if (err instanceof HttpError) {
+      return res.status(err.code).json({ message: err.message });
+    }
+  }
+
+  return res.status(200).json({ posts });
+};
+
+/**
+ * Fetch all posts from a specific thread
+ *
+ * @param req.params.id The id of the thread to fetch posts from
+ *
+ * @returns On success, returns status code 200 and an array of post objects
+ */
+const getPostsByThread = async (
+  req: Request,
+  res: Response,
+  next: Function,
+) => {
+  const { id } = req.params;
+  let posts;
+
+  try {
+    posts = await PostService.getByThread(id);
+  } catch (err: unknown) {
+    if (err instanceof HttpError) {
+      return res.status(err.code).json({ message: err.message });
+    }
+  }
+
+  return res.status(200).json({ posts });
 };
 
 /**
@@ -46,6 +119,8 @@ const deletePost = (req: Request, res: Response, next: Function) => {
 export default {
   getPosts,
   getPostById,
+  getPostsByUser,
+  getPostsByThread,
   updatePost,
   createPost,
   deletePost,
