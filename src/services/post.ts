@@ -86,8 +86,18 @@ const getByUser = async (id: string) => {
  * @param {string} id - The id of the thread to fetch posts from
  */
 const getByThread = async (id: string) => {
-  let posts;
+  let thread;
+  try {
+    thread = await ThreadModel.findById(id);
+  } catch (err: unknown) {
+    throw new HttpError("Error fetching thread", 500);
+  }
 
+  if (!thread) {
+    throw new HttpError("Thread not found", 404);
+  }
+
+  let posts;
   try {
     posts = await PostModel.find({ "thread.threadId": id });
   } catch (err: unknown) {

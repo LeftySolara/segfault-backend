@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import HttpError from "../../utils/httpError";
+import validateRequestInputs from "../../utils/inputValidator";
 import PostService from "../../services/post";
 
 /**
@@ -94,10 +95,30 @@ const getPostsByThread = async (
 /**
  * Update a post's info
  *
- * @returns Status code 200 and a confirmation message
+ * @param req.params.id The id of the post to update
+ * @param req.body.content The new content to use in the post
+ *
+ * @returns On success, returns status code 200 and an updated post object
  */
-const updatePost = (req: Request, res: Response, next: Function) => {
-  return res.status(200).json({ message: "Updating post..." });
+const updatePost = async (req: Request, res: Response, next: Function) => {
+  const validationError = validateRequestInputs(req);
+  if (validationError) {
+    return next(validationError);
+  }
+
+  const { id } = req.params;
+  const { content } = req.body;
+
+  let post;
+  try {
+    post = await PostService.update(id, content);
+  } catch (err: unknown) {
+    if (err instanceof HttpError) {
+      return res.status(err.code).json({ message: err.message });
+    }
+  }
+
+  return res.status(200).json({ post });
 };
 
 /**
