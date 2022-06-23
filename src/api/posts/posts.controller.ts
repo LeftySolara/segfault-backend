@@ -152,9 +152,24 @@ const createPost = async (req: Request, res: Response, next: Function) => {
 
 /**
  * Delete a post
+ *
+ * @param {string} req.params.id - The id of the post to delete
+ *
+ * @returns On succes, returns status code 200 and an object containing the deleted post's information
  */
-const deletePost = (req: Request, res: Response, next: Function) => {
-  return res.status(200).json({ message: "Deleting post..." });
+const deletePost = async (req: Request, res: Response, next: Function) => {
+  const { id } = req.params;
+
+  let post;
+  try {
+    post = await PostService.del(id);
+  } catch (err: unknown) {
+    if (err instanceof HttpError) {
+      return res.status(err.code).json({ message: err.message });
+    }
+  }
+
+  return res.status(200).json({ post });
 };
 
 export default {

@@ -277,14 +277,50 @@ describe("The posts controller", () => {
   });
 
   describe("deletePost", () => {
-    it("should return 200 and a confirmation message", () => {
-      controller.deletePost(
+    it("should return 200 and a post object", async () => {
+      const post = await testHelpers.generatePost();
+
+      const req = {
+        params: {
+          id: post.id,
+        },
+      } as unknown;
+
+      const mockResponse = {
+        json: jest.fn(),
+        status: jest.fn().mockReturnThis(),
+      } as unknown;
+
+      await controller.deletePost(
         req as Request,
         mockResponse as Response,
         jest.fn(),
       );
       const mRes = mockResponse as Response;
       expect(mRes.status).toBeCalledWith(200);
+      expect(mRes.json).toBeCalledWith({ post });
+    });
+
+    it("should return 404 and an error message if the post is not found", async () => {
+      const req = {
+        params: {
+          id: "123456789012",
+        },
+      } as unknown;
+
+      const mockResponse = {
+        json: jest.fn(),
+        status: jest.fn().mockReturnThis(),
+      } as unknown;
+
+      await controller.deletePost(
+        req as Request,
+        mockResponse as Response,
+        jest.fn(),
+      );
+
+      const mRes = mockResponse as Response;
+      expect(mRes.status).toBeCalledWith(404);
       expect(mRes.json).toBeCalledWith({ message: expect.any(String) });
     });
   });
