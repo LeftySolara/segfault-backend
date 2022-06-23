@@ -124,10 +124,30 @@ const updatePost = async (req: Request, res: Response, next: Function) => {
 /**
  * Create a new post
  *
- * @returns Status code 201 and a confirmation message
+ * @param {string} req.body.authorId - The id of the user creating the post
+ * @param {string} req.body.threadId - The id of the thread the post belongs to
+ * @param {string} req.body.content - The text content of the post
+ *
+ * @returns On success, returns status code 201 and a post object
  */
-const createPost = (req: Request, res: Response, next: Function) => {
-  return res.status(201).json({ message: "Creating post..." });
+const createPost = async (req: Request, res: Response, next: Function) => {
+  const validationError = validateRequestInputs(req);
+  if (validationError) {
+    return next(validationError);
+  }
+
+  const { authorId, threadId, content } = req.body;
+
+  let post;
+  try {
+    post = await PostService.create(authorId, threadId, content);
+  } catch (err: unknown) {
+    if (err instanceof HttpError) {
+      return res.status(err.code).json(err.message);
+    }
+  }
+
+  return res.status(201).json({ post });
 };
 
 /**

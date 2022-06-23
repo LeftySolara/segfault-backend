@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import mongoose from "mongoose";
 import testHelpers from "../../utils/testHelpers";
 import controller from "./posts.controller";
 
@@ -229,15 +230,49 @@ describe("The posts controller", () => {
   });
 
   describe("createPost", () => {
-    it("should return 201 and a confirmation message", () => {
-      controller.createPost(
+    it("should return 201 and a post object", async () => {
+      const thread = await testHelpers.generateThread();
+      const content = "Post Content";
+
+      const req = {
+        body: {
+          authorId: thread.author.authorId,
+          threadId: thread.id,
+          content,
+        },
+      } as unknown;
+
+      const mockResponse = {
+        json: jest.fn(),
+        status: jest.fn().mockReturnThis(),
+      } as unknown;
+
+      await controller.createPost(
         req as Request,
         mockResponse as Response,
         jest.fn(),
       );
+
       const mRes = mockResponse as Response;
       expect(mRes.status).toBeCalledWith(201);
-      expect(mRes.json).toBeCalledWith({ message: expect.any(String) });
+      expect((mRes.json as any).mock.calls[0][0]).toEqual({
+        post: {
+          __v: expect.any(Number),
+          _id: expect.any(mongoose.Types.ObjectId),
+          author: {
+            authorId: thread.author.authorId,
+            email: thread.author.email,
+            username: thread.author.username,
+          },
+          thread: {
+            threadId: new mongoose.Types.ObjectId(thread.id),
+            topic: thread.topic,
+          },
+          content,
+          dateCreated: expect.any(Date),
+          id: expect.any(String),
+        },
+      });
     });
   });
 
