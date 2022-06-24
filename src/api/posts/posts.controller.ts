@@ -143,7 +143,7 @@ const createPost = async (req: Request, res: Response, next: Function) => {
     post = await PostService.create(authorId, threadId, content);
   } catch (err: unknown) {
     if (err instanceof HttpError) {
-      return res.status(err.code).json(err.message);
+      return res.status(err.code).json({ message: err.message });
     }
   }
 

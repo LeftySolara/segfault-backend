@@ -120,9 +120,10 @@ router.get("/", controller.getPosts);
  *             schema:
  *               type: object
  *               properties:
- *                 message:
- *                   type: string
- *                   example: Post created successfully
+ *                 posts:
+ *                   type: array
+ *                   items:
+ *                     $ref: "#/components/schemas/Post"
  */
 router.post("/", controller.createPost);
 
@@ -199,5 +200,9 @@ router.patch("/:id", controller.updatePost);
  *                   example: Post deleted successfully
  */
 router.delete("/:id", controller.deletePost);
+
+router.get("/user/:id", controller.getPostsByUser);
+
+router.get("/thread/:id", controller.getPostsByThread);
 
 export default router;
