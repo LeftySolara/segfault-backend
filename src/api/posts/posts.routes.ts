@@ -8,11 +8,11 @@ import controller from "./posts.controller";
  *     UserRef:
  *        type: object
  *        required:
- *          - id
+ *          - authorId
  *          - username
  *          - email
  *        properties:
- *          id:
+ *          authorId:
  *            type: string
  *            description: The auto-generated id of the user
  *          username:
@@ -24,10 +24,10 @@ import controller from "./posts.controller";
  *     ThreadRef:
  *       type: object
  *       required:
- *         - id
+ *         - threadId
  *         - topic
  *       properties:
- *         id:
+ *         threadId:
  *           type: string
  *           description: The auto-generated id of the thread
  *         topic:
@@ -118,11 +118,7 @@ router.get("/", controller.getPosts);
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Post created successfully
+ *               $ref: "#/components/schemas/Post"
  */
 router.post("/", controller.createPost);
 
@@ -146,7 +142,7 @@ router.post("/", controller.createPost);
  *           application/json:
  *             schema:
  *               $ref: "#/components/schemas/Post"
- *       400:
+ *       404:
  *         description: Post connot be found
  */
 router.get("/:id", controller.getPostById);
@@ -165,19 +161,23 @@ router.get("/:id", controller.getPostById);
  *           type: string
  *           example: 12cew34d224r7d
  *         required: true
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               content:
+ *                 type: string
  *     responses:
  *       200:
  *         description: The post was updated successfully
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Post updated successfully
+ *               $ref: "#/components/schemas/Post"
  */
-// TODO: document request body
 router.patch("/:id", controller.updatePost);
 
 /**
@@ -186,9 +186,52 @@ router.patch("/:id", controller.updatePost);
  *   delete:
  *     summary: Delete a post
  *     tags: [Posts]
+ *     parameters:
+ *       - in : path
+ *         name: id
+ *         description: id of the post
+ *         schema:
+ *           type: string
+ *           example: 12cew34d224r7d
+ *         required: true
  *     responses:
  *       200:
  *         description: The post was deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/Post"
+ */
+router.delete("/:id", controller.deletePost);
+
+/**
+ * @swagger
+ * /posts/user/{id}:
+ *   get:
+ *     summary: Get all of a user's posts
+ *     tags: [Posts]
+ *     parameters:
+ *       - in : path
+ *         name: id
+ *         description: the id of the user
+ *         schema:
+ *           type: string
+ *           example: 12cew34d224r7d
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: A list of the user's posts
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 posts:
+ *                   type: array
+ *                   items:
+ *                     $ref: "#/components/schemas/Post"
+ *       404:
+ *         description: The user was not found
  *         content:
  *           application/json:
  *             schema:
@@ -196,8 +239,47 @@ router.patch("/:id", controller.updatePost);
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Post deleted successfully
+ *                   example: User not found
  */
-router.delete("/:id", controller.deletePost);
+router.get("/user/:id", controller.getPostsByUser);
+
+/**
+ * @swagger
+ * /posts/thread/{id}:
+ *   get:
+ *     summary: Get all of a thread's posts
+ *     tags: [Posts]
+ *     parameters:
+ *       - in : path
+ *         name: id
+ *         description: the id of the thread
+ *         schema:
+ *           type: string
+ *           example: 12cew34d224r7d
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: A list of the thread's posts
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 posts:
+ *                   type: array
+ *                   items:
+ *                     $ref: "#/components/schemas/Post"
+ *       404:
+ *         description: The thread was not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Thread not found
+ */
+router.get("/thread/:id", controller.getPostsByThread);
 
 export default router;

@@ -12,6 +12,7 @@ interface Thread {
 }
 
 interface Post {
+  id: string;
   author: Author;
   thread: Thread;
   dateCreated: Date;

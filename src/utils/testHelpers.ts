@@ -6,6 +6,7 @@ import expressLoader from "../loaders/express";
 import BoardCategoryService from "../services/boardCategory";
 import BoardService from "../services/board";
 import ThreadService from "../services/thread";
+import PostService from "../services/post";
 import UserService from "../services/user";
 
 let replset: MongoMemoryReplSet;
@@ -117,6 +118,44 @@ const generateThread = async () => {
 };
 
 /**
+ * Generate a post to be used for tests
+ *
+ * @returns An object containing post information
+ */
+const generatePost = async () => {
+  const username = "generatedPostAuthor";
+  const email = "generatedPostAuthor@example.com";
+  const password = "password123!";
+  const user: any = await UserService.create(username, email, password);
+
+  const boardCategoryTopic = "Post Testing Category";
+  const boardCategory: any = await BoardCategoryService.create(
+    boardCategoryTopic,
+    1,
+  );
+
+  const boardTopic = "Post Testing Board";
+  const boardDescription = "Generated board for post tests";
+  const board: any = await BoardService.create(
+    boardTopic,
+    boardDescription,
+    boardCategory.id,
+  );
+
+  const threadTopic = "Post Testing Thread";
+  const thread: any = await ThreadService.create(
+    user.userId,
+    board.id,
+    threadTopic,
+  );
+
+  const postContent = "Post Content";
+  const post = await PostService.create(user.userId, thread.id, postContent);
+
+  return post;
+};
+
+/**
  * Generate a user to be used for tests
  *
  * @returns An object containing user information
@@ -162,6 +201,7 @@ export default {
   controllerTestInit,
   serviceTestInit,
   generateThread,
+  generatePost,
   generateUser,
   generateBoardCategory,
   generateBoard,
