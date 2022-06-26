@@ -8,11 +8,11 @@ import controller from "./posts.controller";
  *     UserRef:
  *        type: object
  *        required:
- *          - id
+ *          - authorId
  *          - username
  *          - email
  *        properties:
- *          id:
+ *          authorId:
  *            type: string
  *            description: The auto-generated id of the user
  *          username:
@@ -24,10 +24,10 @@ import controller from "./posts.controller";
  *     ThreadRef:
  *       type: object
  *       required:
- *         - id
+ *         - threadId
  *         - topic
  *       properties:
- *         id:
+ *         threadId:
  *           type: string
  *           description: The auto-generated id of the thread
  *         topic:

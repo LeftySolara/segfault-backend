@@ -168,4 +168,52 @@ describe("Test the routes at /posts", () => {
       });
     });
   });
+
+  describe("the endpoint /posts/user/{id}", () => {
+    describe("for GET requests", () => {
+      it("should respond with status code 200 and an array of post objects", async () => {
+        const post = await testHelpers.generatePost();
+
+        const response: request.Response = await request(app).get(
+          `/posts/user/${post.author.authorId}`,
+        );
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toMatchObject({
+          posts: [{ ...post, dateCreated: expect.any(String) }],
+        });
+      });
+
+      it("should respond with status code 404 and an error message if the user is not found", async () => {
+        const response: request.Response = await request(app).get(
+          "/posts/user/123456789012",
+        );
+        expect(response.statusCode).toBe(404);
+        expect(response.body).toEqual(responseMessage);
+      });
+    });
+  });
+
+  describe("the endpoint /posts/thresd/{id}", () => {
+    describe("for GET requests", () => {
+      it("should respond with status code 200 and an array of post objects", async () => {
+        const post = await testHelpers.generatePost();
+
+        const response: request.Response = await request(app).get(
+          `/posts/thread/${post.thread.threadId}`,
+        );
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toMatchObject({
+          posts: [{ ...post, dateCreated: expect.any(String) }],
+        });
+      });
+
+      it("should respond with status code 404 and an error message if the thread is not found", async () => {
+        const response: request.Response = await request(app).get(
+          "/posts/thread/123456789012",
+        );
+        expect(response.statusCode).toBe(404);
+        expect(response.body).toEqual(responseMessage);
+      });
+    });
+  });
 });
