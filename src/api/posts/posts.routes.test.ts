@@ -94,24 +94,78 @@ describe("Test the routes at /posts", () => {
   });
 
   describe("the endpoint /posts/{id}", () => {
-    it("should respond to GET requests by returning 200 and a confirmation message", async () => {
-      const response: request.Response = await request(app).get("/posts/123");
-      expect(response.statusCode).toBe(200);
-      expect(response.body).toEqual(responseMessage);
+    describe("for GET requests", () => {
+      it("should respond with status code 200 and a post object", async () => {
+        const post = await testHelpers.generatePost();
+
+        const response: request.Response = await request(app).get(
+          `/posts/${post.id}`,
+        );
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toMatchObject({
+          post: { ...post, dateCreated: expect.any(String) },
+        });
+      });
+
+      it("should respond with status code 404 and an error message if the post cannot be found", async () => {
+        const response: request.Response = await request(app).get(
+          "/posts/123456789012",
+        );
+        expect(response.statusCode).toBe(404);
+        expect(response.body).toEqual(responseMessage);
+      });
     });
 
-    it("should respond to PATCH requests by returning 200 and a confirmation message", async () => {
-      const response: request.Response = await request(app).patch("/posts/123");
-      expect(response.statusCode).toBe(200);
-      expect(response.body).toEqual(responseMessage);
+    describe("for PATCH requests", () => {
+      it("should respond with status code 200 and an updated post object", async () => {
+        const post = await testHelpers.generatePost();
+        const content = "Updated Content";
+
+        const response: request.Response = await request(app)
+          .patch(`/posts/${post.id}`)
+          .send({
+            content,
+          });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toMatchObject({
+          post: { ...post, content, dateCreated: expect.any(String) },
+        });
+      });
+
+      it("should respond with status code 404 if the post cannot be found", async () => {
+        const response: request.Response = await request(app)
+          .patch("/posts/123456789012")
+          .send({
+            content: "Updated Content",
+          });
+
+        expect(response.statusCode).toBe(404);
+        expect(response.body).toEqual(responseMessage);
+      });
     });
 
-    it("should respond to DELETE requests by returning 200 and a confirmation message", async () => {
-      const response: request.Response = await request(app).delete(
-        "/posts/123",
-      );
-      expect(response.statusCode).toBe(200);
-      expect(response.body).toEqual(responseMessage);
+    describe("for DELETE requests", () => {
+      it("should respond with status code 200 and a post object", async () => {
+        const post = await testHelpers.generatePost();
+
+        const response: request.Response = await request(app).delete(
+          `/posts/${post.id}`,
+        );
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toMatchObject({
+          post: { ...post, dateCreated: expect.any(String) },
+        });
+      });
+
+      it("should respond with status code 404 and an error message if the post cannot be found", async () => {
+        const response: request.Response = await request(app).delete(
+          "/posts/123456789012",
+        );
+
+        expect(response.statusCode).toBe(404);
+        expect(response.body).toEqual(responseMessage);
+      });
     });
   });
 });

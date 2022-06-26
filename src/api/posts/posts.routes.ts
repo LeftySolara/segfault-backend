@@ -118,12 +118,7 @@ router.get("/", controller.getPosts);
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 posts:
- *                   type: array
- *                   items:
- *                     $ref: "#/components/schemas/Post"
+ *               $ref: "#/components/schemas/Post"
  */
 router.post("/", controller.createPost);
 
@@ -147,7 +142,7 @@ router.post("/", controller.createPost);
  *           application/json:
  *             schema:
  *               $ref: "#/components/schemas/Post"
- *       400:
+ *       404:
  *         description: Post connot be found
  */
 router.get("/:id", controller.getPostById);
@@ -166,19 +161,23 @@ router.get("/:id", controller.getPostById);
  *           type: string
  *           example: 12cew34d224r7d
  *         required: true
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               content:
+ *                 type: string
  *     responses:
  *       200:
  *         description: The post was updated successfully
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Post updated successfully
+ *               $ref: "#/components/schemas/Post"
  */
-// TODO: document request body
 router.patch("/:id", controller.updatePost);
 
 /**
@@ -187,17 +186,21 @@ router.patch("/:id", controller.updatePost);
  *   delete:
  *     summary: Delete a post
  *     tags: [Posts]
+ *     parameters:
+ *       - in : path
+ *         name: id
+ *         description: id of the post
+ *         schema:
+ *           type: string
+ *           example: 12cew34d224r7d
+ *         required: true
  *     responses:
  *       200:
  *         description: The post was deleted
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Post deleted successfully
+ *               $ref: "#/components/schemas/Post"
  */
 router.delete("/:id", controller.deletePost);
 
