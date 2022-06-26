@@ -204,8 +204,82 @@ router.patch("/:id", controller.updatePost);
  */
 router.delete("/:id", controller.deletePost);
 
+/**
+ * @swagger
+ * /posts/user/{id}:
+ *   get:
+ *     summary: Get all of a user's posts
+ *     tags: [Posts]
+ *     parameters:
+ *       - in : path
+ *         name: id
+ *         description: the id of the user
+ *         schema:
+ *           type: string
+ *           example: 12cew34d224r7d
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: A list of the user's posts
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 posts:
+ *                   type: array
+ *                   items:
+ *                     $ref: "#/components/schemas/Post"
+ *       404:
+ *         description: The user was not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User not found
+ */
 router.get("/user/:id", controller.getPostsByUser);
 
+/**
+ * @swagger
+ * /posts/thread/{id}:
+ *   get:
+ *     summary: Get all of a thread's posts
+ *     tags: [Posts]
+ *     parameters:
+ *       - in : path
+ *         name: id
+ *         description: the id of the thread
+ *         schema:
+ *           type: string
+ *           example: 12cew34d224r7d
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: A list of the thread's posts
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 posts:
+ *                   type: array
+ *                   items:
+ *                     $ref: "#/components/schemas/Post"
+ *       404:
+ *         description: The thread was not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Thread not found
+ */
 router.get("/thread/:id", controller.getPostsByThread);
 
 export default router;
