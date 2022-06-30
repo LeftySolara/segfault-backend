@@ -141,7 +141,15 @@ router.get("/", controller.getThreads);
  *                   type: string
  *                   example: Could not find board or author
  */
-router.post("/", controller.createThread);
+router.post(
+  "/",
+  [
+    check("topic").not().isEmpty(),
+    check("authorId").not().isEmpty(),
+    check("boardId").not().isEmpty(),
+  ],
+  controller.createThread,
+);
 
 /**
  * @swagger
