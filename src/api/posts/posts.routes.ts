@@ -1,4 +1,5 @@
 import express from "express";
+import { check } from "express-validator";
 import controller from "./posts.controller";
 
 /**
@@ -120,7 +121,15 @@ router.get("/", controller.getPosts);
  *             schema:
  *               $ref: "#/components/schemas/Post"
  */
-router.post("/", controller.createPost);
+router.post(
+  "/",
+  [
+    check("content").not().isEmpty(),
+    check("authorId").not().isEmpty(),
+    check("threadId").not().isEmpty(),
+  ],
+  controller.createPost,
+);
 
 /**
  * @swagger
@@ -178,7 +187,7 @@ router.get("/:id", controller.getPostById);
  *             schema:
  *               $ref: "#/components/schemas/Post"
  */
-router.patch("/:id", controller.updatePost);
+router.patch("/:id", [check("content").not().isEmpty()], controller.updatePost);
 
 /**
  * @swagger
