@@ -10,6 +10,7 @@ interface User {
   joinDate: Date;
   posts: Types.Array<Types.ObjectId>;
   threads: Types.Array<Types.ObjectId>;
+  comparePassword: (password: string) => Promise<boolean>;
 }
 
 type UserModelType = Model<User, {}, {}>;
