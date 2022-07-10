@@ -17,6 +17,7 @@ export default async ({ app }: { app: Application }) => {
   app.use("/boards", api.boards);
   app.use("/threads", api.threads);
   app.use("/posts", api.posts);
+  app.use("/auth", api.auth);
   app.use("/healthCheck", api.healthCheck);
 
   // Default error handling function

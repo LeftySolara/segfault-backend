@@ -164,7 +164,7 @@ const generateUser = async () => {
   const username = "generatedUser";
   const email = "generatedUser@example.com";
   const password = "password123!";
-  const user: any = UserService.create(username, email, password);
+  const user: any = await UserService.create(username, email, password);
 
   return user;
 };
