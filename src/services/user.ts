@@ -3,23 +3,44 @@ import UserModel from "../models/user";
 import HttpError from "../utils/httpError";
 import config from "../config";
 
+interface UserCheck {
+  exists: boolean; // Whether or not the user exists
+  usernameMatch: boolean; // Whether the existing user's username matches
+  emailMatch: boolean; // Whether the existing user's email matches
+}
+
 /**
  * Check whether the given user already exists
  *
  * @param {string} username The user's username
  * @param {string} email The user's email address
- * @returns True if the user exists, false otherwise
+ *
+ * @returns An object specifying whether the user exists and which fields match
  */
 const userExists = async (username: string, email: string) => {
   let existingUser;
+  let userCheck: UserCheck = {
+    exists: false,
+    usernameMatch: false,
+    emailMatch: false,
+  };
 
   try {
     existingUser = await UserModel.findOne({ $or: [{ email }, { username }] });
+    if (existingUser) {
+      userCheck.exists = true;
+      if (existingUser.username === username) {
+        userCheck.usernameMatch = true;
+      }
+      if (existingUser.email === email) {
+        userCheck.emailMatch = true;
+      }
+    }
   } catch (err) {
     throw new HttpError("Faild to look up user", 500);
   }
 
-  return !!existingUser;
+  return userCheck;
 };
 
 /**
@@ -124,12 +145,29 @@ const update = async (
  * @returns An object containing the new user's information
  */
 const create = async (username: string, email: string, password: string) => {
+  let userCheck: UserCheck;
+
+  // Check whether the user already exists
   try {
-    if (await userExists(username, email)) {
-      throw new HttpError("User exists", 422);
+    userCheck = await userExists(username, email);
+    let msg: string;
+
+    if (userCheck.exists) {
+      if (userCheck.emailMatch && userCheck.usernameMatch) {
+        msg = "Email address and username already in use";
+      } else if (userCheck.emailMatch) {
+        msg = "Email address already in use";
+      } else if (userCheck.usernameMatch) {
+        msg = "Username already in use";
+      } else {
+        msg = "Failed to create user. Please try again."; // If things are working properly, this should NEVER happen
+      }
+      throw new HttpError(msg, 422);
     }
   } catch (err) {
-    throw err;
+    if (err instanceof HttpError) {
+      throw new HttpError(err.message, err.code);
+    }
   }
 
   const createdUser = new UserModel({
