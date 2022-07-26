@@ -8,12 +8,12 @@ import config from "../config";
  * This middleware function verifies the JWT stored in the request cookie
  * and determines whether a user is authorized to receive account information.
  *
- * @returns On failure, returns status code 403. On success, calls the next middleware function.
+ * @returns On failure, returns status code 401. On success, calls the next middleware function.
  */
 const authorize = (req: Request, res: Response, next: Function) => {
   const token = req.cookies.token;
   if (!token) {
-    return res.sendStatus(403);
+    return res.sendStatus(401);
   }
   try {
     const data = jwt.verify(token, config.jwt.key as Secret) as JwtPayload;
@@ -23,7 +23,7 @@ const authorize = (req: Request, res: Response, next: Function) => {
     req.token = data.token;
     return next();
   } catch (err: unknown) {
-    return res.sendStatus(403);
+    return res.sendStatus(401);
   }
 };
 
