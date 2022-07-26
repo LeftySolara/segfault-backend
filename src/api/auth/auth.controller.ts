@@ -52,17 +52,15 @@ const logout = async (req: Request, res: Response, next: Function) => {
  *
  * @returns An object containing user login information
  */
-const getLoginInfo = async (req: Request, res: Response, next: Function) => {
-  return res
-    .status(200)
-    .json({
-      user: {
-        id: req.userId,
-        email: req.email,
-        username: req.username,
-        token: req.token,
-      },
-    });
+const getUser = async (req: Request, res: Response, next: Function) => {
+  return res.status(200).json({
+    user: {
+      id: req.userId,
+      email: req.email,
+      username: req.username,
+      token: req.token,
+    },
+  });
 };
 
-export default { login, logout, getLoginInfo };
+export default { login, logout, getUser };
