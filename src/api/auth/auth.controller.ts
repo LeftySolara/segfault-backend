@@ -22,6 +22,10 @@ const login = async (req: Request, res: Response, next: Function) => {
   let loginInfo;
   try {
     loginInfo = await AuthService.login(email, password);
+    res.cookie("token", loginInfo.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+    });
   } catch (err: unknown) {
     if (err instanceof HttpError) {
       return res.status(err.code).json({ message: err.message });
@@ -31,4 +35,34 @@ const login = async (req: Request, res: Response, next: Function) => {
   return res.status(200).json({ loginInfo });
 };
 
-export default { login };
+/**
+ * Log the user out
+ *
+ * @returns Status code 200 and a message verifying that the logout was successful
+ */
+const logout = async (req: Request, res: Response, next: Function) => {
+  return res
+    .clearCookie("token")
+    .status(200)
+    .json({ message: "Successfully logged out" });
+};
+
+/**
+ * Fetch the currently logged-in user's login information.
+ *
+ * @returns An object containing user login information
+ */
+const getLoginInfo = async (req: Request, res: Response, next: Function) => {
+  return res
+    .status(200)
+    .json({
+      user: {
+        id: req.userId,
+        email: req.email,
+        username: req.username,
+        token: req.token,
+      },
+    });
+};
+
+export default { login, logout, getLoginInfo };

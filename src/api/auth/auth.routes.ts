@@ -1,5 +1,6 @@
 import express from "express";
 import { check } from "express-validator";
+import authorize from "../../middleware/auth";
 import controller from "./auth.controller";
 
 /**
@@ -50,7 +51,7 @@ import controller from "./auth.controller";
  */
 
 const router: express.Router = express.Router();
-0;
+
 /**
  * @swagger
  * /auth/login:
@@ -75,5 +76,51 @@ router.post(
   [check("password").not().isEmpty()],
   controller.login,
 );
+
+/**
+ * @swagger
+ * /auth/logout:
+ *   get:
+ *     summary: Log out a user
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: The user successfully logged out
+ */
+router.get("/logout", authorize, controller.logout);
+
+/**
+ * @swagger
+ * /auth/loginInfo:
+ *   get:
+ *     summary: Fetch a user's login information
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: The user's login information
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - id
+ *                 - email
+ *                 - username
+ *                 - token
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   description: The user's ID
+ *                 email:
+ *                   type: string
+ *                   description: The user's email address
+ *                 username:
+ *                   type: string
+ *                   description: The user's username
+ *                 token:
+ *                   type: string
+ *                   description: The user's unique login token
+ */
+router.get("/loginInfo", authorize, controller.getLoginInfo);
 
 export default router;

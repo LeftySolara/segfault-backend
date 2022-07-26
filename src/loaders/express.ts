@@ -1,6 +1,7 @@
 import bodyParser from "body-parser";
 import swaggerUi from "swagger-ui-express";
 import { Application, Request, Response } from "express";
+import cookieParser from "cookie-parser";
 
 import api from "../api";
 import config from "../config";
@@ -20,6 +21,8 @@ export default async ({ app }: { app: Application }) => {
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
     next();
   });
+
+  app.use(cookieParser());
 
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(config.swagger));
 
