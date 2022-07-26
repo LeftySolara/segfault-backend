@@ -91,9 +91,9 @@ router.get("/logout", authorize, controller.logout);
 
 /**
  * @swagger
- * /auth/loginInfo:
+ * /auth/user:
  *   get:
- *     summary: Fetch a user's login information
+ *     summary: Fetch information about the currently logged-in user
  *     tags: [Auth]
  *     responses:
  *       200:
@@ -121,6 +121,6 @@ router.get("/logout", authorize, controller.logout);
  *                   type: string
  *                   description: The user's unique login token
  */
-router.get("/loginInfo", authorize, controller.getLoginInfo);
+router.get("/user", authorize, controller.getUser);
 
 export default router;
