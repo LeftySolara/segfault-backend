@@ -27,7 +27,7 @@ const login = async (email: string, password: string) => {
   let token;
   try {
     token = jwt.sign(
-      { userId: user.id, email: user.email },
+      { userId: user.id, email: user.email, username: user.username },
       config.jwt.key as Secret,
       {
         expiresIn: "1h",

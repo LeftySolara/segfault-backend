@@ -20,8 +20,7 @@ const authorize = (req: Request, res: Response, next: Function) => {
     req.userId = data.userId;
     req.email = data.email;
     req.username = data.username;
-    req.token = data.token;
-    return next();
+    next();
   } catch (err: unknown) {
     return res.sendStatus(401);
   }

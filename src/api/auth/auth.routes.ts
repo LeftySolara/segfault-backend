@@ -117,9 +117,6 @@ router.get("/logout", authorize, controller.logout);
  *                 username:
  *                   type: string
  *                   description: The user's username
- *                 token:
- *                   type: string
- *                   description: The user's unique login token
  */
 router.get("/user", authorize, controller.getUser);
 

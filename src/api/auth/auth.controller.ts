@@ -25,6 +25,7 @@ const login = async (req: Request, res: Response, next: Function) => {
     res.cookie("token", loginInfo.token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
     });
   } catch (err: unknown) {
     if (err instanceof HttpError) {
@@ -58,7 +59,6 @@ const getUser = async (req: Request, res: Response, next: Function) => {
       id: req.userId,
       email: req.email,
       username: req.username,
-      token: req.token,
     },
   });
 };
