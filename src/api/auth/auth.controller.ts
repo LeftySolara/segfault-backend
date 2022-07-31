@@ -24,8 +24,8 @@ const login = async (req: Request, res: Response, next: Function) => {
     loginInfo = await AuthService.login(email, password);
     res.cookie("token", loginInfo.token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
     });
   } catch (err: unknown) {
     if (err instanceof HttpError) {
