@@ -64,7 +64,7 @@ const logout = async (req: Request, res: Response, next: Function) => {
 const getUser = async (req: Request, res: Response, next: Function) => {
   return res.status(200).json({
     user: {
-      id: req.userId,
+      id: req.id,
       email: req.email,
       username: req.username,
     },

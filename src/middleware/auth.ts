@@ -17,7 +17,7 @@ const authorize = (req: Request, res: Response, next: Function) => {
   }
   try {
     const data = jwt.verify(token, config.jwt.key as Secret) as JwtPayload;
-    req.userId = data.userId;
+    req.id = data.id;
     req.email = data.email;
     req.username = data.username;
     next();
