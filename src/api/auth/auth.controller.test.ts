@@ -6,7 +6,7 @@ describe("The Auth controller", () => {
   testHelpers.controllerTestInit();
 
   describe("login", () => {
-    it("should return 200 and a loginInfo object", async () => {
+    it("should return 200 and a user object", async () => {
       const user = await testHelpers.generateUser();
 
       const req = {
@@ -30,12 +30,9 @@ describe("The Auth controller", () => {
       const mRes = mockResponse as Response;
       expect(mRes.status).toBeCalledWith(200);
       expect((mRes.json as any).mock.calls[0][0]).toMatchObject({
-        loginInfo: {
-          userId: user.userId,
-          email: user.email,
-          username: user.username,
-          token: expect.any(String),
-        },
+        id: user.userId,
+        email: user.email,
+        username: user.username,
       });
     });
 

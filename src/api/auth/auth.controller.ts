@@ -9,7 +9,7 @@ import AuthService from "../../services/auth";
  * @param {string} req.body.email - The user's email address
  * @param {string} req.body.password - The user's password
  *
- * @returns On success, returns an object containing login information.
+ * @returns On success, returns an object containing user information.
  */
 const login = async (req: Request, res: Response, next: Function) => {
   const validationError = validateRequestInputs(req);
@@ -19,10 +19,10 @@ const login = async (req: Request, res: Response, next: Function) => {
 
   const { email, password } = req.body;
 
-  let loginInfo;
+  let user;
   try {
-    loginInfo = await AuthService.login(email, password);
-    res.cookie("token", loginInfo.token, {
+    user = await AuthService.login(email, password);
+    res.cookie("token", user.token, {
       httpOnly: true,
       secure: true,
       sameSite: "none",
@@ -33,7 +33,15 @@ const login = async (req: Request, res: Response, next: Function) => {
     }
   }
 
-  return res.status(200).json({ loginInfo });
+  if (user) {
+    return res.status(200).json({
+      id: user.id,
+      email: user.email,
+      username: user.username,
+    });
+  } else {
+    return res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 /**

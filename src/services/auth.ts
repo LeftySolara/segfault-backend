@@ -27,7 +27,7 @@ const login = async (email: string, password: string) => {
   let token;
   try {
     token = jwt.sign(
-      { userId: user.id, email: user.email, username: user.username },
+      { id: user.id, email: user.email, username: user.username },
       config.jwt.key as Secret,
       {
         expiresIn: "1h",
@@ -37,7 +37,7 @@ const login = async (email: string, password: string) => {
     throw new HttpError("Loggin in failed. Please try again later.", 500);
   }
 
-  return { userId: user.id, email: user.email, username: user.username, token };
+  return { id: user.id, email: user.email, username: user.username, token };
 };
 
 export default { login };

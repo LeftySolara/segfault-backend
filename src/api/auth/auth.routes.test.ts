@@ -7,7 +7,7 @@ describe("Test the routes at /auth", () => {
 
   describe("the endpoint /login", () => {
     describe("for POST requests", () => {
-      it("should respond with 200 and a loginInfo object", async () => {
+      it("should respond with 200 and a user object", async () => {
         const user = await testHelpers.generateUser();
 
         const payload = {
@@ -20,12 +20,9 @@ describe("Test the routes at /auth", () => {
           .send(payload);
         expect(response.statusCode).toBe(200);
         expect(response.body).toMatchObject({
-          loginInfo: {
-            userId: user.userId,
-            email: user.email,
-            username: user.username,
-            token: expect.any(String),
-          },
+          id: user.userId,
+          email: user.email,
+          username: user.username,
         });
       });
 

@@ -10,7 +10,7 @@ describe("The Auth service", () => {
       const loginInfo = await authService.login(user.email, "password123!");
 
       expect(loginInfo).toEqual({
-        userId: user.userId,
+        id: user.userId,
         email: user.email,
         username: user.username,
         token: expect.any(String),
