@@ -2,7 +2,10 @@ import { Request, Response } from "express";
 
 import validateRequestInputs from "../../utils/inputValidator";
 import HttpError from "../../utils/httpError";
-import ThreadService from "../../services/thread";
+import ThreadService, {
+  ThreadSortDirection,
+  ThreadSortField,
+} from "../../services/thread";
 
 /**
  * Get all threads from the database
@@ -10,10 +13,29 @@ import ThreadService from "../../services/thread";
  * @returns On success, returns status code 200 and an array of thread objects
  */
 const getThreads = async (req: Request, res: Response, next: Function) => {
-  let threads;
+  let field, direction;
+  let threadLimit = 0;
 
+  if (req.query) {
+    const { sort, limit } = req.query;
+
+    if (limit) {
+      threadLimit = parseInt(limit as string);
+    }
+
+    if (sort) {
+      [field, direction] = (sort as string).split(":");
+      direction = direction === "asc" ? 1 : -1;
+    }
+  }
+
+  let threads;
   try {
-    threads = await ThreadService.getAll();
+    threads = await ThreadService.getAll(
+      field as ThreadSortField,
+      direction as ThreadSortDirection,
+      threadLimit,
+    );
   } catch (err: unknown) {
     if (err instanceof HttpError) {
       return res.status(err.code).json({ message: err.message });

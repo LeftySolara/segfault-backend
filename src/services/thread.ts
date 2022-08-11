@@ -7,18 +7,39 @@ import UserModel from "../models/user";
 
 import HttpError from "../utils/httpError";
 
+export enum ThreadSortDirection {
+  DESC = -1,
+  ASC = 1,
+}
+
+export enum ThreadSortField {
+  AUTHOR = "author.username",
+  DATE = "dateCreated",
+  TOPIC = "topic",
+}
+
 /**
  * Fetch a list of all threads
+ *
+ * @param {string} sortField -The field to sort threads by
+ * @param {string} sortDirection - The direction to sort threads (ascending or descending)
+ * @param {number} limit - The maximum number of threads to return
  *
  * @throws after a database error
  *
  * @returns An array of thread objects
  */
-const getAll = async () => {
+const getAll = async (
+  sortField: ThreadSortField = ThreadSortField.DATE,
+  sortDirection: ThreadSortDirection = ThreadSortDirection.DESC,
+  limit: number,
+) => {
   let threads;
 
   try {
-    threads = await ThreadModel.find({});
+    threads = await ThreadModel.find({})
+      .limit(limit)
+      .sort({ [sortField]: sortDirection });
   } catch (err: unknown) {
     throw new HttpError("Error fetching threads", 500);
   }
