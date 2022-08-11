@@ -22,7 +22,8 @@ export enum ThreadSortField {
  * Fetch a list of all threads
  *
  * @param {string} sortField -The field to sort threads by
- * @param {String} sortDirection - The direction to sort threads (ascending or descending)
+ * @param {string} sortDirection - The direction to sort threads (ascending or descending)
+ * @param {number} limit - The maximum number of threads to return
  *
  * @throws after a database error
  *
@@ -31,11 +32,14 @@ export enum ThreadSortField {
 const getAll = async (
   sortField: ThreadSortField = ThreadSortField.DATE,
   sortDirection: ThreadSortDirection = ThreadSortDirection.DESC,
+  limit: number,
 ) => {
   let threads;
 
   try {
-    threads = await ThreadModel.find({}).sort({ [sortField]: sortDirection });
+    threads = await ThreadModel.find({})
+      .limit(limit)
+      .sort({ [sortField]: sortDirection });
   } catch (err: unknown) {
     throw new HttpError("Error fetching threads", 500);
   }

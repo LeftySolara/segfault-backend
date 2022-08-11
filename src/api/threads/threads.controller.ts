@@ -14,9 +14,14 @@ import ThreadService, {
  */
 const getThreads = async (req: Request, res: Response, next: Function) => {
   let field, direction;
+  let threadLimit = 0;
 
   if (req.query) {
-    const { sort } = req.query;
+    const { sort, limit } = req.query;
+
+    if (limit) {
+      threadLimit = parseInt(limit as string);
+    }
 
     if (sort) {
       [field, direction] = (sort as string).split(":");
@@ -29,6 +34,7 @@ const getThreads = async (req: Request, res: Response, next: Function) => {
     threads = await ThreadService.getAll(
       field as ThreadSortField,
       direction as ThreadSortDirection,
+      threadLimit,
     );
   } catch (err: unknown) {
     if (err instanceof HttpError) {
