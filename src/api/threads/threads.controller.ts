@@ -105,11 +105,32 @@ const getThreadsByBoard = async (
   res: Response,
   next: Function,
 ) => {
+  let field, direction;
+  let threadLimit = 0;
+
+  if (req.query) {
+    const { sort, limit } = req.query;
+
+    if (limit) {
+      threadLimit = parseInt(limit as string);
+    }
+
+    if (sort) {
+      [field, direction] = (sort as string).split(":");
+      direction = direction === "asc" ? 1 : -1;
+    }
+  }
+
   const { id } = req.params;
 
   let threads;
   try {
-    threads = await ThreadService.getByBoard(id);
+    threads = await ThreadService.getByBoard(
+      id,
+      field as ThreadSortField,
+      direction as ThreadSortDirection,
+      threadLimit,
+    );
   } catch (err: unknown) {
     if (err instanceof HttpError) {
       return res.status(err.code).json({ message: err.message });
