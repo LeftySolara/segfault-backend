@@ -94,6 +94,32 @@ const getThreadsByUser = async (
 };
 
 /**
+ * Fetch all threads from a specific board
+ *
+ * @param {string} req.params.id - The id of the board
+ *
+ * @returns An array of thread objects
+ */
+const getThreadsByBoard = async (
+  req: Request,
+  res: Response,
+  next: Function,
+) => {
+  const { id } = req.params;
+
+  let threads;
+  try {
+    threads = await ThreadService.getByBoard(id);
+  } catch (err: unknown) {
+    if (err instanceof HttpError) {
+      return res.status(err.code).json({ message: err.message });
+    }
+  }
+
+  return res.status(200).json({ threads });
+};
+
+/**
  * Update a thread's information
  *
  * @param {string} req.params.id - The id of the thread to update
@@ -175,6 +201,7 @@ export default {
   getThreads,
   getThreadById,
   getThreadsByUser,
+  getThreadsByBoard,
   updateThread,
   createThread,
   deleteThread,

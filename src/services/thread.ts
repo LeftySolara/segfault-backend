@@ -107,6 +107,37 @@ const getByUser = async (id: string) => {
 };
 
 /**
+ * Fetch all of a board's threads
+ *
+ * @param {string} id - The id of the board
+ *
+ * @throws after a database error
+ * @throws if the board cannot be found
+ *
+ * @returns An array of thread objects
+ */
+const getByBoard = async (id: string) => {
+  let board;
+  try {
+    board = await BoardModel.findById(id);
+  } catch (err: unknown) {
+    throw new HttpError("Error fetching threads from board", 500);
+  }
+  if (!board) {
+    throw new HttpError("Could not find board", 404);
+  }
+
+  let threads;
+  try {
+    threads = await ThreadModel.find({ "board.boardId": id });
+  } catch (err: unknown) {
+    throw new HttpError("Error fetching threads from board", 500);
+  }
+
+  return threads.map((thread) => thread.toObject({ getters: true }));
+};
+
+/**
  * Update a thread's information
  *
  * @param {string} id - The id of the thread to update
@@ -267,4 +298,4 @@ const del = async (id: string) => {
   return threadObj;
 };
 
-export default { getAll, getById, getByUser, update, create, del };
+export default { getAll, getById, getByUser, getByBoard, update, create, del };
