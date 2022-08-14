@@ -110,13 +110,21 @@ const getByUser = async (id: string) => {
  * Fetch all of a board's threads
  *
  * @param {string} id - The id of the board
+ * @param {string} sortField - The field to sort threads by
+ * @param {string} sortDirection - The direction to sort threads
+ * @param {number} limit - The maximum number of threads to return
  *
  * @throws after a database error
  * @throws if the board cannot be found
  *
  * @returns An array of thread objects
  */
-const getByBoard = async (id: string) => {
+const getByBoard = async (
+  id: string,
+  sortField: ThreadSortField = ThreadSortField.DATE,
+  sortDirection: ThreadSortDirection = ThreadSortDirection.DESC,
+  limit: number,
+) => {
   let board;
   try {
     board = await BoardModel.findById(id);
@@ -129,7 +137,9 @@ const getByBoard = async (id: string) => {
 
   let threads;
   try {
-    threads = await ThreadModel.find({ "board.boardId": id });
+    threads = await ThreadModel.find({ "board.boardId": id })
+      .limit(limit)
+      .sort({ [sortField]: sortDirection });
   } catch (err: unknown) {
     throw new HttpError("Error fetching threads from board", 500);
   }
