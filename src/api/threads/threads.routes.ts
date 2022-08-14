@@ -300,4 +300,42 @@ router.delete("/:id", controller.deleteThread);
  */
 router.get("/user/:id", controller.getThreadsByUser);
 
+/**
+ * @swagger
+ * /threads/board/{id}:
+ *   get:
+ *     summary: Fetch all threads from a specific board
+ *     tags: [Threads]
+ *     parameters:
+ *       - in : path
+ *         name: id
+ *         description: The id of the board
+ *         schema:
+ *           type: string
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: A list of the board's threads
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 threads:
+ *                   type: array
+ *                   items:
+ *                     $ref: "#/components/schemas/Thread"
+ *       404:
+ *         description: The board was not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Board not found
+ */
+router.get("/board/:id", controller.getThreadsByBoard);
+
 export default router;
