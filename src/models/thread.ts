@@ -17,7 +17,7 @@ interface Thread {
   topic: string;
   dateCreated: Date;
   posts: Types.Array<Types.ObjectId>;
-  lastPost: Types.ObjectId;
+  lastPost: Date;
 }
 
 type ThreadDocumentOverrides = {
@@ -46,7 +46,7 @@ const threadSchema = new Schema<Thread, ThreadModelType>({
   topic: { type: String, required: true },
   dateCreated: { type: Date, required: true, immutable: true },
   posts: [{ type: Schema.Types.ObjectId, required: true, ref: "Post" }],
-  lastPost: { type: Schema.Types.ObjectId, required: false, ref: "Post" },
+  lastPost: { type: Date, required: false, immutable: false },
 });
 
 const ThreadModel = model<Thread, ThreadModelType>("Thread", threadSchema);

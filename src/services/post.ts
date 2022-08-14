@@ -168,6 +168,7 @@ const create = async (authorId: string, threadId: string, content: string) => {
     await author.save({ session: sess, validateModifiedOnly: true });
 
     thread.posts.push(post._id);
+    thread.lastPost = post.dateCreated;
     await thread.save({ session: sess, validateModifiedOnly: true });
 
     sess.commitTransaction();
