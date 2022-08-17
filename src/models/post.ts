@@ -4,6 +4,8 @@ interface Author {
   authorId: Types.ObjectId;
   username: string;
   email: string;
+  joinDate: Date;
+  postCount: Number;
 }
 
 interface Thread {
@@ -32,6 +34,8 @@ const postSchema = new Schema<Post, PostModelType>({
       authorId: { type: Schema.Types.ObjectId, required: true, ref: "User" },
       username: { type: String, required: true },
       email: { type: String, required: true },
+      joinDate: { type: Date, required: true },
+      postCount: { type: Number, required: true },
     },
     { _id: false },
   ),
