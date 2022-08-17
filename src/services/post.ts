@@ -149,6 +149,8 @@ const create = async (authorId: string, threadId: string, content: string) => {
       authorId: author._id,
       username: author.username,
       email: author.email,
+      joinDate: author.joinDate,
+      postCount: author.posts.length,
     },
     thread: {
       threadId: thread._id,

@@ -12,6 +12,8 @@ import controller from "./posts.controller";
  *          - authorId
  *          - username
  *          - email
+ *          - joinDate
+ *          - postCount
  *        properties:
  *          authorId:
  *            type: string
@@ -22,6 +24,12 @@ import controller from "./posts.controller";
  *          email:
  *            type: string
  *            description: The user's email address
+ *          joinDate:
+ *            type: date
+ *            description: The date the user signed up
+ *          postCount:
+ *            type: number
+ *            description: The number of posts the user has created
  *     ThreadRef:
  *       type: object
  *       required:
