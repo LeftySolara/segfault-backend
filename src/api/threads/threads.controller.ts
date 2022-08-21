@@ -175,6 +175,7 @@ const updateThread = async (req: Request, res: Response, next: Function) => {
  * @param {string} req.body.authorId - The id of the thread's creator
  * @param {string} req.body.boardId - The id of the board that the thread belongs to
  * @param {string} req.body.topic - The title of the thread
+ * @param {string} req.body.content - The content of the first post in the thread
  *
  * @returns On success, returns 201 and a thread object
  */
@@ -184,11 +185,11 @@ const createThread = async (req: Request, res: Response, next: Function) => {
     return next(validationError);
   }
 
-  const { authorId, boardId, topic } = req.body;
+  const { authorId, boardId, topic, content } = req.body;
 
   let thread;
   try {
-    thread = await ThreadService.create(authorId, boardId, topic);
+    thread = await ThreadService.create(authorId, boardId, topic, content);
   } catch (err: unknown) {
     if (err instanceof HttpError) {
       return res.status(err.code).json({ message: err.message });

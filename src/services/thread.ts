@@ -5,6 +5,8 @@ import BoardModel from "../models/board";
 import PostModel from "../models/post";
 import UserModel from "../models/user";
 
+import PostService from "./post";
+
 import HttpError from "../utils/httpError";
 
 export enum ThreadSortDirection {
@@ -185,6 +187,7 @@ const update = async (id: string, topic: string) => {
  * @param {string} authorId - The id of the user creating the thread
  * @param {string} boardId - The id of the board that the thread will belong to
  * @param {string} topic - A brief description of the thread's subject matter
+ * @param {string} content - The content of the first post in the thread
  *
  * @throws after a database error
  * @throws if the board does not exist
@@ -192,7 +195,12 @@ const update = async (id: string, topic: string) => {
  *
  * @returns An object containing information about the newly-created thread
  */
-const create = async (authorId: string, boardId: string, topic: string) => {
+const create = async (
+  authorId: string,
+  boardId: string,
+  topic: string,
+  content: string,
+) => {
   // Find the board that the thread will be assigned to
   let board;
   try {
@@ -245,6 +253,8 @@ const create = async (authorId: string, boardId: string, topic: string) => {
     await author.save({ session: sess, validateModifiedOnly: true });
 
     sess.commitTransaction();
+
+    await PostService.create(authorId, thread.id, content);
   } catch (err: unknown) {
     throw new HttpError("Unable to create thread", 500);
   }

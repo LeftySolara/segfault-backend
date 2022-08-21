@@ -79,6 +79,7 @@ import controller from "./threads.controller";
  *               - topic
  *               - authorId
  *               - boardId
+ *               - content
  *             properties:
  *               topic:
  *                 type: string
@@ -89,6 +90,9 @@ import controller from "./threads.controller";
  *               boardId:
  *                 type: string
  *                 description: The id of the board this thread belongs to
+ *               content:
+ *                 type: string
+ *                 description: The content of the first post in the thread
  * tags:
  *   name: Threads
  *   description: Operations on threads
@@ -144,6 +148,7 @@ router.get("/", controller.getThreads);
 router.post(
   "/",
   [
+    check("content").not().isEmpty(),
     check("topic").not().isEmpty(),
     check("authorId").not().isEmpty(),
     check("boardId").not().isEmpty(),
