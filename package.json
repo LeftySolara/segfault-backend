@@ -3,8 +3,11 @@
   "version": "0.0.1",
   "description": "A forum where users discuss various programming topics",
   "main": "server.ts",
+  "engines": {
+    "node": "16.16.0"
+  },
   "scripts": {
-    "start": "ts-node ./src/server.ts",
+    "start": "NODE_ENV=production ts-node ./src/server.ts",
     "dev": "NODE_ENV=development nodemon ./src/server.ts",
     "prod": "NODE_ENV=production nodemon ./src/server.ts",
     "test": "NODE_ENV=test jest --coverage --verbose"
